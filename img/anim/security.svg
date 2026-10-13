@@ -1,0 +1,51 @@
+<svg width="58" height="61.3" viewBox="7 5.2 58 61.3" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+<style>
+  svg{--she1:cubic-bezier(.34,1.56,.64,1);--she2:cubic-bezier(.22,1,.36,1)}
+  .shp{transform-box:fill-box;transform-origin:center;will-change:transform,opacity}
+  @keyframes shpop{0%{opacity:0;transform:scale(.25)}100%{opacity:1;transform:scale(1)}}
+  @keyframes shrise{0%{opacity:0;transform:translateY(10px) scale(.7)}100%{opacity:1;transform:none}}
+  @keyframes shdrop{0%{opacity:0;transform:translateY(-12px) scale(.9)}100%{opacity:1;transform:none}}
+  @keyframes shspin{0%{opacity:0;transform:scale(0) rotate(-120deg)}100%{opacity:1;transform:none}}
+  @keyframes shcut{0%{transform:scale(0)}100%{transform:scale(1)}}
+  @keyframes shcutrot{0%{transform:scale(0) rotate(-90deg)}100%{transform:none}}
+  @keyframes shwipex{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+  @keyframes shwipey{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+  @keyframes shflash{0%{opacity:0}22%{opacity:.3}100%{opacity:0}}
+
+  .shshield{animation:shin .6s var(--she1) .05s both}
+  .shcheck{animation:shwipex .45s var(--she2) .5s both;transform-origin:left center}
+  .shflash{animation:shflash .6s ease-out .55s both}
+  @keyframes shin{0%{opacity:0;transform:translateY(-10px) scale(.55)}100%{opacity:1;transform:none}}
+
+  @media (prefers-reduced-motion: reduce){[class*="sh"]{animation:none!important}}
+</style>
+<defs>
+<radialGradient id="paint0_radial_505_98308" cx="0" cy="0" r="1" gradientTransform="matrix(25.959 -0.217558 0.0236794 43.0343 36.1091 7.41677)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9900"/>
+<stop offset="1" stop-color="#FF5900"/>
+</radialGradient>
+<linearGradient id="paint1_linear_505_98308" x1="10.1328" y1="10.5995" x2="15.6659" y2="13.4463" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9900"/>
+<stop offset="0.5" stop-color="#CC6640"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint2_linear_505_98308" x1="-10.0814" y1="27.4527" x2="30.3551" y2="65.5704" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9900"/>
+<stop offset="0.5" stop-color="#CC6640"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<clipPath id="shwpcheck"><rect class="shp shcheck" x="23.3" y="21.7" width="31.4" height="28.8"/></clipPath>
+<mask id="shcutshield" maskUnits="userSpaceOnUse" x="0" y="0" width="72" height="72">
+  <rect x="0" y="0" width="72" height="72" fill="white"/>
+  <g clip-path="url(#shwpcheck)"><path d="M48.5048 24.1844C49.3823 22.9807 51.0698 22.7107 52.2736 23.5882C53.4773 24.4657 53.7473 26.1532 52.8698 27.3569L37.5811 48.3944C37.1198 49.0357 36.3998 49.4407 35.6123 49.4969C34.8248 49.5532 34.0598 49.2719 33.4973 48.7094L25.3973 40.6094C24.3398 39.5632 24.3511 37.8532 25.3973 36.7957C26.4436 35.7382 28.1536 35.7382 29.2111 36.7957L35.0723 42.6569L48.5048 24.1844Z" fill="black"/></g>
+</mask>
+</defs>
+<g class="shp shshield">
+  <g mask="url(#shcutshield)">
+      <path d="M37.507 7.52547C37.0345 7.31172 36.517 7.19922 35.9995 7.19922C35.482 7.19922 34.9758 7.31172 34.5033 7.52547L13.3195 16.5142C10.8445 17.5605 8.99954 20.0017 9.01079 22.9492C9.06704 34.1092 13.6458 54.528 33.0408 63.8092C34.9195 64.7092 37.102 64.7092 38.9808 63.8092C58.3645 54.528 62.9545 34.1092 63.0108 22.9492C63.022 20.0017 61.177 17.5605 58.702 16.5142L37.507 7.52547Z" fill-rule="evenodd" clip-rule="evenodd" fill="url(#paint0_radial_505_98308)"/>
+    <path d="M37.507 7.52547C37.0345 7.31172 36.517 7.19922 35.9995 7.19922C35.482 7.19922 34.9758 7.31172 34.5033 7.52547L13.3195 16.5142C10.8445 17.5605 8.99954 20.0017 9.01079 22.9492C9.06704 34.1092 13.6458 54.528 33.0408 63.8092C34.9195 64.7092 37.102 64.7092 38.9808 63.8092C58.3645 54.528 62.9545 34.1092 63.0108 22.9492C63.022 20.0017 61.177 17.5605 58.702 16.5142L37.507 7.52547Z" fill-rule="evenodd" clip-rule="evenodd" fill="url(#paint1_linear_505_98308)"/>
+    <path d="M37.507 7.52547C37.0345 7.31172 36.517 7.19922 35.9995 7.19922C35.482 7.19922 34.9758 7.31172 34.5033 7.52547L13.3195 16.5142C10.8445 17.5605 8.99954 20.0017 9.01079 22.9492C9.06704 34.1092 13.6458 54.528 33.0408 63.8092C34.9195 64.7092 37.102 64.7092 38.9808 63.8092C58.3645 54.528 62.9545 34.1092 63.0108 22.9492C63.022 20.0017 61.177 17.5605 58.702 16.5142L37.507 7.52547Z" fill-rule="evenodd" clip-rule="evenodd" fill="url(#paint2_linear_505_98308)"/>
+  </g>
+  <g mask="url(#shcutshield)"><path class="shp shflash" opacity="0" d="M37.507 7.52547C37.0345 7.31172 36.517 7.19922 35.9995 7.19922C35.482 7.19922 34.9758 7.31172 34.5033 7.52547L13.3195 16.5142C10.8445 17.5605 8.99954 20.0017 9.01079 22.9492C9.06704 34.1092 13.6458 54.528 33.0408 63.8092C34.9195 64.7092 37.102 64.7092 38.9808 63.8092C58.3645 54.528 62.9545 34.1092 63.0108 22.9492C63.022 20.0017 61.177 17.5605 58.702 16.5142L37.507 7.52547Z" fill-rule="evenodd" clip-rule="evenodd" fill="#FFFFFF"/></g>
+</g>
+</svg>

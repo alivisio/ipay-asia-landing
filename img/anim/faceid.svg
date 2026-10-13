@@ -1,0 +1,89 @@
+<svg width="76" height="76" viewBox="-2 -2 76 76" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+<style>
+  svg{--fie1:cubic-bezier(.34,1.56,.64,1);--fie2:cubic-bezier(.22,1,.36,1)}
+  .fip{transform-box:fill-box;transform-origin:center;will-change:transform,opacity}
+  @keyframes fipop{0%{opacity:0;transform:scale(.25)}100%{opacity:1;transform:scale(1)}}
+  @keyframes firise{0%{opacity:0;transform:translateY(10px) scale(.7)}100%{opacity:1;transform:none}}
+  @keyframes fidrop{0%{opacity:0;transform:translateY(-12px) scale(.9)}100%{opacity:1;transform:none}}
+  @keyframes fispin{0%{opacity:0;transform:scale(0) rotate(-120deg)}100%{opacity:1;transform:none}}
+  @keyframes ficut{0%{transform:scale(0)}100%{transform:scale(1)}}
+  @keyframes ficutrot{0%{transform:scale(0) rotate(-90deg)}100%{transform:none}}
+  @keyframes fiwipex{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+  @keyframes fiwipey{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+  @keyframes fiflash{0%{opacity:0}22%{opacity:.3}100%{opacity:0}}
+
+  .fitl{animation:fitl .55s var(--fie1) .05s both}
+  .fitr{animation:fitr .55s var(--fie1) .1s both}
+  .fibl{animation:fibl .55s var(--fie1) .1s both}
+  .fibr{animation:fibr .55s var(--fie1) .15s both}
+  .fieyes{animation:fifeat .45s var(--fie1) .5s both}
+  .finose{animation:fifeat .45s var(--fie1) .6s both}
+  .fimouth{animation:fifeat .45s var(--fie1) .7s both}
+  @keyframes fitl{0%{opacity:0;transform:translate(12px,12px)}100%{opacity:1;transform:none}}
+  @keyframes fitr{0%{opacity:0;transform:translate(-12px,12px)}100%{opacity:1;transform:none}}
+  @keyframes fibl{0%{opacity:0;transform:translate(12px,-12px)}100%{opacity:1;transform:none}}
+  @keyframes fibr{0%{opacity:0;transform:translate(-12px,-12px)}100%{opacity:1;transform:none}}
+  @keyframes fifeat{0%{opacity:0;transform:scale(.5)}100%{opacity:1;transform:none}}
+
+  @media (prefers-reduced-motion: reduce){[class*="fi"]{animation:none!important}}
+</style>
+<defs>
+<linearGradient id="paint0_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint1_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint2_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint3_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint4_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint5_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+<linearGradient id="paint6_linear_500_28118" x1="1.32203" y1="36" x2="72" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC6640"/>
+<stop offset="0.5" stop-color="#AE4DB7"/>
+<stop offset="1" stop-color="#993380"/>
+</linearGradient>
+
+</defs>
+<g class="fip fieyes">
+    <path d="M26.4773 30.6868C26.4772 31.6442 26.1662 32.6104 25.4355 33.3411C24.7048 34.0719 23.7378 34.3828 22.7803 34.3828C21.8244 34.3827 20.8683 34.0606 20.1492 33.3309C19.4322 32.6032 19.1213 31.6437 19.1213 30.6868V25.7964C19.1213 24.8423 19.4294 23.8849 20.1297 23.1532C20.8378 22.4134 21.7957 22.0625 22.7803 22.0624C23.7384 22.0624 24.7112 22.3747 25.4448 23.1189C26.1759 23.8607 26.4773 24.8367 26.4773 25.7964V30.6868ZM52.5484 30.6868C52.5484 31.6436 52.2375 32.6032 51.5206 33.3309C50.8014 34.0608 49.8446 34.3828 48.8885 34.3828C47.9339 34.3828 46.9701 34.0744 46.2351 33.3605C45.4937 32.6403 45.1555 31.6723 45.1554 30.6868V25.7964C45.1554 24.8092 45.4825 23.8313 46.2249 23.0995C46.963 22.372 47.9333 22.0624 48.8885 22.0624C49.8732 22.0624 50.831 22.4134 51.5391 23.1532C52.2394 23.8849 52.5484 24.8422 52.5484 25.7964V30.6868Z" fill="url(#paint0_linear_500_28118)"/>
+</g>
+<g class="fip fibl">
+    <path d="M11.8967 65.4896H21.8246C22.595 65.4896 23.4744 65.7017 24.1671 66.3676C24.8715 67.0448 25.1163 67.9345 25.1164 68.7443C25.1164 69.5543 24.8716 70.4447 24.1671 71.122C23.4744 71.7879 22.595 72 21.8246 72H11.8227C8.25794 72 5.22041 71.0702 3.08172 68.9433C0.941458 66.8145 0 63.7834 0 60.2134V50.2124C0 49.4434 0.210788 48.5709 0.853927 47.8763C1.5172 47.1602 2.40808 46.8836 3.25565 46.8836L3.57484 46.8966C4.32202 46.9595 5.07617 47.2498 5.65646 47.8763C6.29959 48.5709 6.51038 49.4434 6.51038 50.2124V60.0663C6.51038 62.1646 7.05219 63.438 7.80561 64.1944C8.55796 64.9496 9.82033 65.4896 11.8967 65.4896Z" fill="url(#paint1_linear_500_28118)"/>
+</g>
+<g class="fip fibr">
+    <path d="M60.1033 65.4896C62.0918 65.4896 63.3681 64.9565 64.1491 64.1842C64.9261 63.4157 65.4896 62.1363 65.4896 60.0663V50.2124C65.4896 49.4434 65.7004 48.5709 66.3435 47.8763C67.0067 47.1604 67.8969 46.8837 68.7443 46.8836L69.0645 46.8966C69.8116 46.9595 70.5658 47.2498 71.1461 47.8763C71.7892 48.5709 72 49.4434 72 50.2124V60.2134C72 63.7311 71.0661 66.7546 68.9451 68.8933C66.8213 71.0345 63.794 72 60.2134 72H50.1754C49.405 72 48.5256 71.7879 47.8329 71.122C47.1284 70.4447 46.8836 69.5543 46.8836 68.7443C46.8837 67.9345 47.1285 67.0448 47.8329 66.3676C48.5256 65.7017 49.405 65.4896 50.1754 65.4896H60.1033Z" fill="url(#paint2_linear_500_28118)"/>
+</g>
+<g class="fip fimouth">
+    <path d="M25.3911 43.4263C25.8453 43.4263 26.34 43.5075 26.8455 43.7603C27.2869 43.981 27.6387 44.2868 27.9326 44.5957C29.8572 46.4888 32.7763 47.8393 35.6873 47.8393C38.6065 47.8393 41.5537 46.483 43.43 44.6068L43.4309 44.6077C43.7534 44.2683 44.1277 43.9506 44.5892 43.7307C45.1058 43.4847 45.5874 43.4263 45.9835 43.4263L46.1361 43.43C47.7059 43.5053 49.092 44.736 49.092 46.5348C49.092 47.6001 48.6054 48.4175 48.0392 48.9208C44.7217 52.2097 40.2251 54.0925 35.6873 54.0925C31.1482 54.0925 26.5309 52.2426 23.2549 48.8422C22.858 48.4373 22.3527 47.7314 22.29 46.7412L22.2835 46.5348L22.2872 46.3628C22.3753 44.6011 23.8107 43.4265 25.3911 43.4263Z" fill="url(#paint3_linear_500_28118)"/>
+</g>
+<g class="fip finose">
+    <path d="M32.452 36.5135H33.4253V25.1709C33.4253 24.4351 33.6204 23.5545 34.3162 22.8738C35.0044 22.2006 35.8735 22.0263 36.5699 22.0263C37.2636 22.0263 38.1543 22.1906 38.8523 22.8886C39.5502 23.5865 39.7145 24.4773 39.7145 25.1709V36.4598C39.7145 38.2594 39.2636 39.9509 38.0298 41.1772C36.7981 42.4014 35.1091 42.8407 33.3337 42.8407H33.0034C32.228 42.8407 31.2903 42.7106 30.5175 42.1218C29.6935 41.494 29.3827 40.6063 29.3471 39.7848L29.3434 39.622L29.3471 39.4592C29.4289 37.7928 30.7616 36.5135 32.452 36.5135Z" fill="url(#paint4_linear_500_28118)"/>
+</g>
+<g class="fip fitl">
+    <path d="M0 21.7876V11.7496C0 8.19519 0.942936 5.17347 3.08357 3.05027C5.22176 0.929753 8.25795 4.80448e-05 11.8227 0H21.8246C22.595 0 23.4744 0.21211 24.1671 0.877981C24.8716 1.55533 25.1164 2.44569 25.1164 3.25565C25.1163 4.06551 24.8715 4.95516 24.1671 5.6324C23.4744 6.29833 22.595 6.51038 21.8246 6.51038H11.8967C9.8203 6.51038 8.55677 7.05076 7.80376 7.80376C7.05076 8.55677 6.51038 9.8203 6.51038 11.8967V21.7876C6.51038 22.5581 6.29855 23.4383 5.6324 24.1311C4.95517 24.8353 4.06549 25.0802 3.25565 25.0803C2.44569 25.0803 1.55532 24.8355 0.877981 24.1311C0.211839 23.4383 0 22.5581 0 21.7876Z" fill="url(#paint5_linear_500_28118)"/>
+</g>
+<g class="fip fitr">
+    <path d="M65.4896 21.7876V11.8967C65.4896 9.84876 64.9286 8.57827 64.1518 7.81301C63.3701 7.0429 62.0919 6.51038 60.1033 6.51038H50.1754C49.405 6.51038 48.5256 6.29833 47.8329 5.6324C47.1285 4.95517 46.8837 4.06552 46.8836 3.25565C46.8836 2.44569 47.1284 1.55532 47.8329 0.877981C48.5256 0.212111 49.405 0 50.1754 0H60.2134C63.7887 0 66.8159 0.953341 68.9414 3.0845C71.0659 5.21492 72 8.23176 72 11.7496V21.7876C72 22.5581 71.7882 23.4383 71.122 24.1311C70.4447 24.8355 69.5543 25.0803 68.7443 25.0803C67.9345 25.0802 67.0448 24.8353 66.3676 24.1311C65.7015 23.4383 65.4896 22.5581 65.4896 21.7876Z" fill="url(#paint6_linear_500_28118)"/>
+</g>
+</svg>

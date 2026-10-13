@@ -1,0 +1,1361 @@
+<title>iPay Asia</title>
+<script>
+/* page zoom helpers: the layout is not scaled now (1280–1439 reflows like the rest), but geometry code stays zoom-safe */
+function pageZoom(){ return parseFloat(document.documentElement.style.zoom) || 1; }
+function rectScale(el){ return el.offsetHeight ? el.getBoundingClientRect().height / el.offsetHeight : 1; }
+</script>
+<meta name="description" content="One account and card for everyday spending, trips around Asia and money from overseas clients.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ───────── Tokens ─────────
+   Colour: iPay DS (light) + one lilac surface for Wise-style panels.
+   Type: even sizes only. Spacing: 0/4/8/16/24/32/40/48/64/80/96/128/160.
+   Radius: 8/16/24/32/full. */
+:root{
+  --ink:#0A0A0A;
+  --ink-2:#525252;
+  --ink-3:#8A8A8A;
+  --paper:#FFFFFF;
+  --lilac:#F7EDF8;   /* DS bg/secondary-hover: #AE4DB7 at 10% on white */
+  --lilac-2:#F7EDF8; /* same DS token — one lilac on the page */
+  --line:#E2DEE9;
+  --brand:#AE4DB7;
+  --brand-deep:#993380;
+  --ember:#CC6640;
+  --success:#2EA56F;
+  --night:#000000;
+  --grad:linear-gradient(90deg,#CC6640 2%,#AE4DB7 51%,#993380 100%);
+  --r8:8px;--r16:16px;--r24:24px;--r32:32px;--rf:9999px;
+  --shadow:0 16px 40px -16px rgba(40,10,48,.24);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --text:Inter,-apple-system,"SF Pro Text",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{background:var(--paper);color:var(--ink);font:400 16px/24px var(--text);-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:4px;border-radius:8px}
+.wrap{width:100%;max-width:1600px;margin:0 auto;padding:0 40px}
+
+/* ───────── Type ───────── */
+.d1{font:700 80px/84px var(--display);letter-spacing:-.035em}
+.d2{font:700 56px/60px var(--display);letter-spacing:-.03em;text-wrap:balance}
+.d2+.lead{margin-top:24px}
+.h3{font:600 24px/32px var(--display);letter-spacing:-.01em;text-wrap:balance}
+.lead{font-size:20px;line-height:32px;color:var(--ink-2)}
+.body{font-size:16px;line-height:24px;color:var(--ink-2)}
+.small{font-size:14px;line-height:20px;color:var(--ink-2)}
+.cap{font-size:12px;line-height:16px;color:var(--ink-3)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ───────── Buttons ───────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:var(--rf);font:600 16px/24px var(--text);transition:transform .2s var(--ease),box-shadow .2s var(--ease),background-color .2s}
+.btn--sm{height:40px;padding:0 16px;font-size:14px;line-height:20px}
+.btn--brand{background:var(--grad);color:#fff;position:relative;overflow:hidden}
+.btn--brand::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;transition:opacity .2s}
+.btn--brand:hover::after{opacity:.12}
+.btn--tertiary{background:rgba(0,0,0,.06)}
+.btn--tertiary:hover{background:rgba(0,0,0,.12)}
+.btn--ink{background:var(--ink);color:#fff}
+.btn--ink:hover{background:#262626}
+/* Store badges: 1:1 from EU landing component "Store download button" (Figma 5vxkrHIwUab8BJz3Fqt8HB), 144×48 */
+.badge{display:inline-block;border-radius:7px;transition:opacity .2s}
+.badge:hover{opacity:.85}
+.badge img{display:block;width:144px;height:48px}
+
+/* ───────── Logo (Figma "Logo full") ───────── */
+.logo{position:relative;display:block;width:118px;height:40px;flex:none}
+.logo img{position:absolute;max-width:none}
+.logo .lb{left:0;top:0;width:50.77px;height:40px}
+.logo .lr{left:33.1px;top:9.8px;width:6.65px;height:11.24px}
+.logo .ll{left:50.6px;top:9.1px;width:5.33px;height:11.24px;transform:rotate(14.53deg) scaleX(-1)}
+.logo .lw{left:61.49px;top:10px;width:55.68px;height:27.5px}
+.logo--inv img{filter:invert(1)}
+
+/* ───────── Nav ───────── */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(255,255,255,.84);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:box-shadow .3s}
+.nav.is-scrolled{box-shadow:0 1px 0 var(--line)}
+.nav .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:80px}
+.seg{display:flex;padding:4px;border-radius:var(--rf);background:rgba(0,0,0,.06)}
+.seg a{padding:6px 16px;border-radius:var(--rf);font:600 14px/20px var(--text);color:var(--ink-2);transition:background-color .2s,color .2s}
+.seg a[aria-current="page"]{background:var(--ink);color:#fff}
+.seg a:not([aria-current]):hover{color:var(--ink)}
+.nav-right{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.acct{display:none} /* phones only: Personal/Business as a dropdown next to the logo */
+.acct-btn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px 0 16px;border-radius:var(--rf);font:600 14px/20px var(--text);color:var(--ink);background:rgba(0,0,0,.06)} /* grey pill, same as the tertiary button */
+.acct-btn .caret{width:10px;height:16px;transition:transform .25s var(--ease)}
+.acct-btn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+/* popover = DS "Action Menu" light (as in the calculator), rows = DS table cell */
+/* anchored to the sticky nav, full width under the bar; solid fill because a blur nested inside the blurred nav is not rendered */
+.acct-pop{list-style:none;position:absolute;left:16px;right:16px;top:60px;z-index:60;padding:8px 0;margin:0;border-radius:24px;background:#F3EFF6;box-shadow:0 24px 48px -24px rgba(60,10,70,.35);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top center;transition:opacity .2s var(--ease),transform .25s var(--ease),visibility 0s .25s}
+.acct-pop::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,rgba(174,77,183,.5),rgba(77,34,81,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.acct.open .acct-pop{opacity:1;visibility:visible;transform:none;transition:opacity .2s var(--ease),transform .25s var(--ease)}
+.acct-pop li{position:relative}
+.acct-pop li:not(:last-child)::after{content:"";position:absolute;left:16px;right:0;bottom:0;height:1px;background:var(--line)}
+.acct-pop a{display:flex;align-items:center;gap:8px;min-height:72px;padding:12px 16px}
+.acct-pop a span{flex:1;display:flex;flex-direction:column;gap:4px}
+.acct-pop b{font:400 16px/24px var(--text);color:var(--ink)}
+.acct-pop small{font-size:14px;line-height:20px;color:var(--ink-2)}
+.acct-pop svg{width:24px;height:24px;color:var(--ink);opacity:0}
+.acct-pop a[aria-selected="true"] svg{opacity:1}
+
+/* ───────── Inline type devices ─────────
+   Only two devices on the page:
+   chip   : gradient pill with an icon between words (hero, fees, cards, security, CTA)
+   ticker : black plaque whose content rolls or counts (day, audiences, referral) */
+.chip{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;height:.84em;width:1.32em;margin:-.12em .04em 0;border-radius:var(--rf);background:var(--grad);color:#fff;transform-origin:50% 60%}
+.chip svg{width:.44em;height:.44em}
+.d2 .chip{width:80px;height:48px;margin:-8px 4px 0}
+.d2 .chip svg{width:32px;height:32px}
+/* d1 (80px): icon 40 + 32 each side = 104 wide, 64 tall (d2: 32 + 24 each side = 80×48) */
+.d1 .chip{width:104px;height:64px;margin:-8px 8px 0}
+.d1 .chip svg{width:40px;height:40px}
+
+.ticker{display:inline-flex;justify-content:center;vertical-align:middle;height:1em;line-height:1;margin:-.12em .08em 0;padding:0 .24em;border-radius:.28em;background:var(--ink);color:#fff;overflow:hidden;position:relative;transition:width .6s var(--ease)} /* width follows the current word (JS) so side padding stays equal */
+.ticker-track{display:flex;flex-direction:column;transition:transform .6s var(--ease)}
+.ticker-track{align-items:center;flex:none}
+.br-m{display:none} /* line break used only on phones */
+.ticker-track span{display:flex;align-items:center;justify-content:center;height:1em;padding-bottom:.06em;white-space:nowrap}
+
+
+
+
+/* ───────── Hero ───────── */
+.hero{padding:40px 0 64px}
+.hero .wrap{display:grid;grid-template-columns:624px minmax(0,720px);justify-content:space-between;gap:64px;align-items:center} /* photo stops at 720 (half of the 1440 base); extra width goes into the gap */
+.hero-copy .d1{margin-bottom:24px} /* subtitle sits closer to its heading (24) than to the content below (48) */
+.hero-copy .lead{max-width:480px;margin-bottom:48px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hero-note{margin-top:16px}
+
+.hero-word{display:inline-block}
+.js .hero-word,.js .hero .chip{opacity:0}
+.hero.play .hero-word{animation:rise .7s var(--ease) both}
+.hero.play .chip{animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(.4em)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.2) rotate(-20deg)}to{opacity:1;transform:none}}
+
+.stage{position:relative;height:720px;border-radius:var(--r32);overflow:hidden;background:var(--lilac);isolation:isolate}
+.js .stage{clip-path:inset(100% 0 0 0 round 32px)}
+.hero.play .stage{animation:unveil 1.1s var(--ease) .1s both}
+@keyframes unveil{from{clip-path:inset(100% 0 0 0 round 32px)}to{clip-path:inset(0 0 0 0 round 32px)}}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+.slide img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform 7s linear}
+.slide.on{opacity:1}
+.slide.on img{transform:scale(1)}
+.slide[data-pos="market"] img{object-position:50% 40%}
+.slide[data-pos="airport"] img{object-position:46% 50%}
+.slide[data-pos="night"] img{object-position:58% 50%}
+
+.toast{display:grid;grid-template-columns:40px 1fr auto;gap:16px;align-items:center;padding:16px;border-radius:var(--r24);background:#fff;box-shadow:var(--shadow);color:var(--ink)}
+/* one style for every toast: lilac circle, brand icon; the event type is told by the text and amount */
+.toast-ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--lilac);color:var(--brand-deep)}
+.toast-ico svg{width:20px;height:20px}
+.toast b{display:block;font:600 14px/20px var(--text)}
+.toast span{display:block;font-size:12px;line-height:16px;color:var(--ink-2)}
+.toast .amt{font:600 16px/24px var(--text);white-space:nowrap}
+.amt.plus{color:var(--success)}
+
+.stage .toast{position:absolute;left:24px;right:24px;bottom:24px;z-index:2;opacity:0;transform:translateY(16px) scale(.96);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.stage .toast.on{opacity:1;transform:none;transition-delay:.7s}
+.bars{position:absolute;right:24px;top:24px;z-index:2;display:flex;gap:8px}
+.bars button{width:40px;height:16px;display:flex;align-items:center}
+.bars button i{display:block;width:100%;height:4px;border-radius:4px;background:rgba(255,255,255,.4);overflow:hidden}
+.bars button i::before{content:"";display:block;height:100%;width:0;background:#fff}
+.bars button.on i::before{animation:fill var(--dur,6s) linear forwards}
+.bars button.done i::before{width:100%}
+@keyframes fill{to{width:100%}}
+
+/* trust */
+.trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust .wrap{display:flex;align-items:center;justify-content:space-between;gap:32px;height:96px}
+/* payment marks from EU landing (Figma 5vxkrHIwUab8BJz3Fqt8HB 1001:8733), heights tuned for equal visual weight */
+.marks{display:flex;align-items:center;gap:48px}
+.marks img{display:block}
+
+/* ───────── Section shell ───────── */
+.sec{padding:128px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:64px;margin-bottom:64px}
+.sec-head .d2{max-width:880px}
+.sec-head .lead{max-width:440px;margin-top:0}
+
+/* ───────── Day timeline ───────── */
+.round{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.06);transition:background-color .2s,opacity .2s}
+.round:hover{background:rgba(0,0,0,.12)}
+.round:disabled{opacity:.32;cursor:default}
+.round svg{width:24px;height:24px}
+
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:400px;gap:24px;padding:0 max(var(--gut,40px),calc((100% - 1520px)/2));will-change:transform}
+/* pinned horizontal scroll: .day-pin height = visible height + horizontal travel (set in JS) */
+.day{padding:128px 0}
+.day-sticky{position:sticky;top:80px;overflow:hidden} /* height = content; top set in JS to centre it under the nav */
+.day .sec-head{margin-bottom:32px}
+.day--free .day-sticky{position:static}
+.day--free .rail{overflow-x:auto;scrollbar-width:none}
+/* day track: full content width; first dot on the left content edge (aligned with heading and first card), last dot on the right edge */
+.track{list-style:none;position:relative;height:56px;margin:0 0 32px;padding:0}
+.track::before,.track-fill{content:"";position:absolute;top:7px;left:8px;height:2px;border-radius:2px}
+.track::before{right:8px;background:var(--line)}
+.track-fill{width:0;background:var(--grad)}
+.track li{position:absolute;top:0;left:calc(8px + (100% - 16px) * var(--t));transform:translateX(-50%)}
+.track li:first-of-type{transform:translateX(-8px)}
+.track li:last-of-type{transform:translateX(calc(-100% + 8px))}
+.track button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;text-align:center;cursor:pointer;white-space:nowrap}
+.track li:first-of-type button{align-items:flex-start;text-align:left}
+.track li:last-of-type button{align-items:flex-end;text-align:right}
+.track i{position:relative;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--line);transition:transform .3s var(--ease),box-shadow .3s,background .3s}
+.track span{font:600 14px/20px var(--text);color:var(--ink-3);transition:color .3s}
+.track small{font-size:12px;line-height:16px;color:var(--ink-3)}
+.track li.done i{background:var(--grad);box-shadow:none}
+.track li.done span{color:var(--ink-2)}
+.track li.on i{background:var(--grad);box-shadow:none}
+.track li.is-now span{color:var(--ink)}
+.track li.is-now small{color:var(--ink-2)}
+.moment{scroll-snap-align:start;display:flex;flex-direction:column}
+.moment-media{position:relative;height:clamp(320px,calc(100svh - 420px),440px);border-radius:var(--r24);overflow:hidden;margin-bottom:24px;background:var(--lilac)}
+.moment-media>img{width:100%;height:100%;object-fit:cover}
+.moment-media .toast{position:absolute;left:24px;right:24px;bottom:24px;opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .6s var(--ease)}
+.moment.in .moment-media .toast{opacity:1;transform:none;transition-delay:.25s}
+.moment-time{display:flex;align-items:center;gap:8px;font:600 14px/20px var(--text);color:var(--brand-deep);margin-bottom:8px}
+.moment-time::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--grad)}
+.moment .h3{margin-bottom:8px}
+
+.ui{position:absolute;inset:0;padding:32px;display:flex;flex-direction:column}
+.ui--lilac{background:var(--lilac)}
+.ui--night{background:#000 url(img/cards/card-10.jpg) center/cover;color:#fff}
+.ui-label{font:500 14px/20px var(--text);color:var(--ink-2);margin-bottom:8px}
+.ui--night .ui-label{color:rgba(255,255,255,.6)}
+.ui-total{font:700 48px/56px var(--display);letter-spacing:-.03em;margin-bottom:32px}
+.ui-total small{font-size:24px;letter-spacing:0;color:var(--ink-3)}
+.rows{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+.row{display:grid;grid-template-columns:40px 1fr auto;gap:16px;align-items:center;padding:16px;border-radius:var(--r16);background:#fff}
+.ui--night .row{background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+/* balance list: rows share the toast spec (r24, p16, gap 16, 40px icon, 14/20 + 12/16, amount 16/24) */
+.wallet{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.wrow{display:grid;grid-template-columns:40px 1fr auto;gap:16px;align-items:center;padding:16px;border-radius:var(--r24);background:#fff}
+.wrow img{width:40px;height:40px;border-radius:50%}
+.wrow b{display:block;font:600 14px/20px var(--text);color:var(--ink)}
+.wrow span{display:block;font-size:12px;line-height:16px;color:var(--ink-2)}
+.wrow .r{text-align:right}
+.wrow .r b{font:600 16px/24px var(--text)}
+/* UI cards inside the day timeline: rows arrive one by one like the toasts on the photos (replay on every entry) */
+.js .moment .wrow,.js .moment .rows .row{opacity:0;transform:translateY(16px)}
+.moment.in .wrow,.moment.in .rows .row{animation:rise .6s var(--ease) both;animation-delay:.25s}
+.moment.in .wrow:nth-child(2),.moment.in .rows .row:nth-child(2){animation-delay:.4s}
+.moment.in .wrow:nth-child(3),.moment.in .rows .row:nth-child(3){animation-delay:.55s}
+.cur{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:700 14px/1 var(--text);color:#fff}
+.cur--usd{background:#2EA56F}.cur--eur{background:#5B6CF0}.cur--usdt{background:#26A17B}
+.row b{display:block;font:600 14px/20px var(--text)}
+.row div span{display:block;font-size:12px;line-height:16px;color:var(--ink-2)}
+.ui--night .row div span{color:rgba(255,255,255,.6)}
+.row .r{text-align:right}
+.switch{width:48px;height:28px;border-radius:var(--rf);background:rgba(255,255,255,.24);position:relative;transition:background-color .3s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .3s var(--ease)}
+.switch.on{background:var(--brand)}
+.switch.on::after{transform:translateX(20px)}
+/* settings / sections sit in rounded squares; objects (payments, people, companies) in circles */
+.plane{width:40px;height:40px;border-radius:var(--r8);display:grid;place-items:center;background:rgba(255,255,255,.12)}
+.plane svg{width:20px;height:20px}
+
+/* ───────── Calculator ───────── */
+.panel{border-radius:var(--r32);background:var(--lilac);padding:48px}
+.calc-grid{display:grid;grid-template-columns:1fr 520px;gap:80px;align-items:center}
+.ticks{list-style:none;display:flex;flex-direction:column;gap:16px;margin-top:48px}
+.ticks li{display:grid;grid-template-columns:32px 1fr;gap:16px;align-items:start}
+/* transparent 32×48 frame: icon width × title (24) + subtitle (24) lines; icon flush with the left edge */
+.tick-ico{width:32px;height:48px;display:grid;place-items:center}
+.tick-ico svg{width:32px;height:32px;color:var(--ink)}
+.ticks b{display:block;font:600 16px/24px var(--text)}
+.flash{animation:flash .5s var(--ease)}
+@keyframes flash{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+
+/* ───────── Calculator: mirrors app "Exchange" screen (light theme) ───────── */
+.xw{background:#fff;border-radius:var(--r32);padding:32px;box-shadow:var(--shadow);font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif}
+.xw-pair{position:relative;display:flex;flex-direction:column;gap:4px}
+.xf{display:flex;flex-direction:column;gap:16px;padding:24px 16px;background:rgba(174,77,183,.05);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .2s}
+.xf:first-child{border-radius:24px 24px 4px 4px}
+.xf:last-child{border-radius:4px 4px 24px 24px}
+.xf:has(.xamt:focus){box-shadow:inset 0 0 0 2px var(--brand)}
+.xf-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;line-height:16px;color:var(--ink-2)}
+.xf-head b{font-weight:600}
+.xf-head a{font-weight:600;color:var(--brand);margin-left:4px}
+.xf-row{display:flex;align-items:center;gap:8px}
+.xpick{position:relative;display:flex;align-items:center;gap:8px;height:48px;padding:0 8px;border-radius:16px;background:rgba(174,77,183,.05);font:400 16px/24px -apple-system,"SF Pro Text",Inter,sans-serif;color:var(--ink);flex:none}
+.xpick:hover{background:rgba(174,77,183,.1)}
+.xpick .flag{width:32px;height:32px;flex:none;border-radius:50%}
+.xpick svg.ch{width:16px;height:16px;transition:transform .25s var(--ease)}
+.xpick[aria-expanded="true"] svg.ch{transform:rotate(180deg)}
+/* Dropdown (desktop counterpart of the app's bottom-sheet picker):
+   shell = DS "Action Menu" light (bg/tertiary 70% + blur 30, Brand Gradient/Border, r24);
+   rows  = DS "Table Cell" (72h, 40 icon, 16/24 title, 14/20 subtitle, divider inset 16) */
+.dd{position:relative;flex:none}
+.dd-pop{position:absolute;left:0;top:calc(100% + 8px);z-index:20;width:320px;border-radius:24px;background:rgba(235,230,242,.7);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);box-shadow:0 24px 48px -24px rgba(60,10,70,.35);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top left;transition:opacity .2s var(--ease),transform .25s var(--ease),visibility 0s .25s}
+.dd-pop::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(180deg,rgba(174,77,183,.5),rgba(77,34,81,.5));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:1}
+.dd.open .dd-pop{opacity:1;visibility:visible;transform:none;transition:opacity .2s var(--ease),transform .25s var(--ease)}
+.dd-menu{list-style:none;margin:0;padding:8px 0;max-height:368px;overflow-y:auto;border-radius:inherit;scrollbar-width:thin}
+.dd-opt{position:relative;display:flex;align-items:center;gap:8px;height:72px;padding:12px 16px;cursor:pointer;font-family:-apple-system,"SF Pro Text",Inter,sans-serif;color:var(--ink)}
+.dd-opt:not(:last-child)::after{content:"";position:absolute;left:16px;right:0;bottom:0;height:1px;background:var(--line)}
+.dd-opt .flag{width:40px;height:40px;flex:none}
+.dd-opt span.t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.dd-opt span.t b{font-weight:400;font-size:16px;line-height:24px}
+.dd-opt span.t small{font-size:14px;line-height:20px;color:var(--ink-2)}
+.dd-opt svg{width:24px;height:24px;color:var(--ink);opacity:0;flex:none}
+.dd-opt[aria-selected="true"] svg{opacity:1}
+.dd-opt:hover,.dd-opt.hl{background:rgba(174,77,183,.06)}
+.coin{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:600 14px/1 -apple-system,Inter,sans-serif;color:#fff;flex:none}
+.xamt{flex:1;min-width:0;border:0;outline:0;background:none;text-align:right;font:600 36px/42px -apple-system,"SF Pro Display",Inter,sans-serif;letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums} /* DS Display/Large */
+.xamt[readonly]{cursor:default}
+.xswap{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.08);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:1;transition:background-color .2s,transform .4s var(--ease)}
+.xswap:hover{background:rgba(0,0,0,.12)}
+.xswap svg{width:20px;height:20px}
+.xswap.flip{transform:rotate(180deg)}
+.xfees{list-style:none;margin:24px 0 0;padding:0 16px;display:flex;flex-direction:column}
+.xfees li{display:flex;justify-content:space-between;padding:12px 0;font-size:14px;line-height:20px;color:var(--ink-2);border-bottom:1px solid var(--line)}
+.xfees li:last-child{border-bottom:0}
+.xfees b{color:var(--ink);font-weight:600}
+.xfees .zero b{color:var(--success)}
+.xw .btn{width:100%;margin-top:24px;font-family:inherit}
+.xw .cap{margin-top:16px;text-align:center}
+
+/* ───────── Bento ───────── */
+/* heading row sits on the bento grid: subtitle starts on the same column as the Travellers tile */
+.bento-head{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;align-items:end}
+.bento-head .d2{grid-column:1 / 8}
+.bento-head .lead{grid-column:8 / 13;max-width:none}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:auto auto auto;gap:24px;grid-template-areas:"a a a a a a a b b b b b" "a a a a a a a c c c c c" "d d d d e e e e e e e e"}
+.tile{border-radius:var(--r32);padding:32px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.tile .who{font:600 14px/20px var(--text);color:var(--brand-deep);margin-bottom:16px}
+.tile .h3{margin-bottom:8px;max-width:440px}
+.t-a{grid-area:a;background:var(--lilac)}
+.t-b{grid-area:b;box-shadow:inset 0 0 0 1px var(--line)}
+.t-c{grid-area:c;box-shadow:inset 0 0 0 1px var(--line)}
+.t-d{grid-area:d;background:var(--lilac)}
+.t-e{grid-area:e;background:#000 url(img/cards/card-05.jpg) right center/cover;color:#fff}
+.t-e .who{color:rgba(255,255,255,.64)}
+.t-e .body{color:rgba(255,255,255,.72);max-width:440px}
+.t-e .btn{margin-top:32px;align-self:flex-start;background:#fff;color:var(--ink)}
+.t-e .btn:hover{background:#e6e6e6}
+
+.month{margin:auto 0 32px;padding-top:40px}
+.month b{display:block;font:800 80px/80px var(--display);letter-spacing:-.04em;margin:8px 0 16px}
+.month b small{font-size:40px;color:var(--ink-3)}
+.month-bar{display:flex;gap:4px;height:8px}
+.month-bar i{display:block;height:100%;border-radius:8px;width:0;background:var(--grad);transition:width 1s var(--ease)}
+.month-bar i:nth-child(2){background:var(--brand);opacity:.6;transition-delay:.15s}
+.month-bar i:nth-child(3){background:var(--brand);opacity:.3;transition-delay:.3s}
+.t-a.in .month-bar i{width:var(--w)}
+.inbox{display:flex;flex-direction:column;gap:8px}
+.inbox .row{box-shadow:0 8px 24px -16px rgba(60,10,70,.3)}
+.js .inbox .row{opacity:0;transform:translateY(16px)}
+.t-a.in .inbox .row{animation:rise .6s var(--ease) both}
+.t-a.in .inbox .row:nth-child(2){animation-delay:.15s}
+.t-a.in .inbox .row:nth-child(3){animation-delay:.3s}
+.ini{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:600 14px/1 var(--text);background:var(--lilac-2);color:var(--brand-deep)}
+/* fictional payer brands: wordmark tiles, each with its own typeface, like real favicons */
+.ini--logo{border-radius:50%;font-style:normal}
+.lg-sn{background:#0A0A0A;color:#fff;font:800 10px/9px Georgia,'Times New Roman',serif;letter-spacing:-.2px;text-align:center}
+.lg-ks{background:#EFEBE4;color:#1A1A1A;font:400 11px/1 var(--text);letter-spacing:.3px}
+.lg-lw{background:#FF5A1F;color:#fff;font:700 15px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:-1px}
+
+.coins{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:24px}
+.coins span{height:40px;padding:0 16px 0 8px;gap:8px;border-radius:var(--rf);display:inline-flex;align-items:center;font:600 14px/20px var(--text);background:var(--lilac);color:var(--ink)}
+.coins img{display:block;width:24px;height:24px;border-radius:50%}
+
+.send{margin-top:auto;padding-top:24px;display:flex;align-items:center;gap:16px}
+.send .ini{width:48px;height:48px}
+.send img.ini{object-fit:cover}
+.send-line{flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 16px);position:relative}
+.send-line::after{content:"";position:absolute;top:-7px;left:0;width:16px;height:16px;border-radius:50%;background:var(--grad);/* same dot as the active stop on the day track */animation:travel 2.4s var(--ease) infinite}
+@keyframes travel{0%{left:0;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% - 16px);opacity:0}}
+.send-amt{font:600 14px/20px var(--text)}
+.send-amt span{display:block;font-weight:400;font-size:12px;line-height:16px;color:var(--success)}
+
+.timer{margin-top:auto;padding-top:24px;display:flex;align-items:flex-end;gap:16px}
+.timer b{font:800 96px/88px var(--display);letter-spacing:0;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.timer span{font:400 16px/24px var(--text);color:var(--ink-2);padding-bottom:8px}
+
+/* ───────── Cards ───────── */
+.cards-grid .lead{max-width:520px}
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.fan{position:relative;height:600px;perspective:1600px}
+.fan-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .4s var(--ease)}
+.pcard{position:absolute;left:50%;top:50%;width:440px;height:278px;margin:-139px 0 0 -220px;border-radius:16px;overflow:hidden;box-shadow:0 40px 80px -32px rgba(60,10,70,.6);transition:transform 1s cubic-bezier(.3,1.2,.4,1)}
+.pcard img{display:block;width:100%;height:100%;object-fit:cover}
+.fan .pcard{transform:translate3d(0,0,0)}
+.fan.in .pc1{transform:translate3d(-40px,-150px,-80px) rotate(-12deg)}
+.fan.in .pc2{transform:translate3d(48px,-30px,-40px) rotate(6deg)}
+.fan.in .pc3{transform:translate3d(-16px,120px,0) rotate(-3deg)}
+/* same "icon frame + title + text" construction as the calculator list (.ticks), laid out 2×2 */
+.ticks.feats{display:grid;grid-template-columns:1fr 1fr;gap:24px 32px;margin:48px 0}
+
+/* ───────── Security (dark) ───────── */
+.dark{background:var(--night);color:#fff;position:relative;overflow:hidden}
+.dark::before{content:"";position:absolute;width:1200px;height:800px;left:50%;top:-400px;margin-left:-600px;background:radial-gradient(closest-side,rgba(174,77,183,.42),transparent);pointer-events:none}
+.dark .wrap{position:relative}
+.dark .body,.dark .lead{color:rgba(255,255,255,.64)}
+.safe{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.glow{position:relative;border-radius:var(--r24);padding:32px;min-height:360px;display:flex;flex-direction:column;background:linear-gradient(180deg,#1a0a1f 0%,#0a050c 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden}
+.glow::before{content:"";position:absolute;left:-20%;right:-20%;top:-60%;height:100%;background:radial-gradient(closest-side,rgba(174,77,183,.5),transparent);opacity:.6;transition:opacity .4s}
+.glow:hover::before{opacity:1}
+.glow>*{position:relative}
+.glow b{display:block;font:600 24px/32px var(--display);letter-spacing:-.01em;margin:32px 0 8px}
+.glow p{min-height:72px}
+.glow p{font-size:16px;line-height:24px;color:rgba(255,255,255,.64)}
+.bubble{margin-bottom:auto;display:flex;flex-direction:column;gap:8px}
+.bubble div{align-self:flex-start;max-width:90%;padding:12px 16px;border-radius:16px 16px 16px 4px;background:rgba(255,255,255,.1);font-size:14px;line-height:20px}
+.bubble div.me{align-self:flex-end;border-radius:16px 16px 4px 16px;background:var(--grad)}
+.dots{display:flex;gap:4px;padding:16px!important;width:auto}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);animation:blink 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+/* security icons: animated brand icons (Animations/), replayed on every entry */
+.gani{width:80px;height:80px;object-fit:contain;object-position:left top;margin-bottom:auto;display:block} /* viewBoxes cropped to the drawing, so every icon fills the same 80 box */
+.legal-line{margin-top:48px;display:flex;align-items:center;gap:16px;padding-top:32px;border-top:1px solid rgba(255,255,255,.12)}
+.legal-line svg{width:32px;height:32px;color:#fff;flex:none} /* same 32px DS icon as the calculator list */
+
+/* ───────── Referral ───────── */
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.steps{list-style:none;display:flex;flex-direction:column;counter-reset:s}
+.steps li{display:grid;grid-template-columns:48px 1fr;gap:24px;padding:32px 0;border-top:1px solid var(--line);counter-increment:s}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.steps li::before{content:counter(s);width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:700 20px/1 var(--display);background:var(--lilac);color:var(--brand-deep)}
+.steps b{display:block;font:600 24px/32px var(--display);letter-spacing:-.01em;margin-bottom:8px}
+
+/* ───────── FAQ ───────── */
+.faq-grid{display:grid;grid-template-columns:400px 1fr;gap:80px}
+.faq-grid .lead a{color:var(--brand);font-weight:600}
+.qa{border-top:1px solid var(--line)}
+.qa:last-child{border-bottom:1px solid var(--line)}
+.qa summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:24px 0;font:600 24px/32px var(--display);letter-spacing:-.01em}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary i{flex:none;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.06);display:grid;place-items:center;transition:background-color .3s}
+.qa summary i svg{grid-area:1/1;width:24px;height:24px;color:var(--ink);transition:opacity .25s,transform .35s var(--ease)}
+.qa summary i .mn{opacity:0;transform:rotate(-90deg)}
+.qa[open] summary i{background:var(--lilac)}
+.qa[open] summary i svg{color:var(--brand-deep)}
+.qa[open] summary i .pl{opacity:0;transform:rotate(90deg)}
+.qa[open] summary i .mn{opacity:1;transform:none}
+.qa-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
+.qa[open] .qa-body{grid-template-rows:1fr}
+.qa-body>div{overflow:hidden}
+.qa-body p{padding:0 64px 24px 0;color:var(--ink-2);max-width:680px}
+
+/* ───────── CTA ───────── */
+.cta{border-radius:var(--r32);background:var(--cta-base,#1c120c) var(--cta-img) var(--cta-pos,right center)/var(--cta-size,cover) no-repeat;color:#fff;display:grid;grid-template-columns:minmax(0,640px) 1fr;min-height:700px;padding:0 48px;overflow:hidden;position:relative}
+.cta--ride{--cta-img:image-set(url(img/cta-ride-1600.jpg?v=9) 1x,url(img/cta-ride-3200.jpg?v=9) 2x);--cta-base:#0b0a0d;--cta-pos:65% center}
+.cta>*{position:relative;z-index:2}
+.cta-copy{padding:96px 0;align-self:center}
+.cta-copy .d1{margin-bottom:24px}
+.cta-copy .lead{color:rgba(255,255,255,.72);max-width:480px;margin-bottom:48px}
+.cta-row{display:flex;align-items:center;gap:8px}
+
+/* ───────── Footer ───────── */
+.foot{padding:64px 0 40px}
+.foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:48px;border-bottom:1px solid var(--line)}
+.foot h3{font:600 14px/20px var(--text);margin-bottom:16px}
+.foot ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.foot ul a{font-size:14px;line-height:20px;color:var(--ink-2)}
+.foot ul a:hover{color:var(--ink)}
+.foot-brand .small{max-width:360px;margin:24px 0}
+.foot-legal{padding-top:32px;display:flex;justify-content:space-between;gap:40px}
+.foot-legal .cap{max-width:880px}
+.foot-legal .cap:last-child{white-space:nowrap;flex:none}
+
+
+/* ───────── Responsive ─────────
+   1440 is the base. 1280–1600: grids flex, type and spacing stay as at 1440.
+   >1440: content stops at 1600, backgrounds stay full width.
+   768–1279: tablet layout (type scale unchanged). <768: mobile (own type steps). */
+@media (max-width:1279px){
+  :root{--gut:32px}
+  .wrap{padding:0 32px}
+  .hero .wrap{grid-template-columns:minmax(0,1fr);gap:48px}
+  .hero-copy{max-width:624px}
+  .stage{height:560px}
+  .trust .wrap{height:auto;padding:24px 32px;flex-wrap:wrap;justify-content:center;gap:16px 48px}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:24px}
+  .sec-head .d2{max-width:none}
+  .sec-head .lead{max-width:640px}
+  .track small{display:none}
+  /* calculator: side by side down to 1024 (see below); single column with a full-width widget under that */
+  .calc-grid{grid-template-columns:minmax(0,1fr) 440px;gap:48px}
+  .bento-head{display:flex;flex-direction:column;align-items:flex-start;gap:24px}
+  .bento-head .lead{max-width:640px}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"a a" "b c" "d e"}
+  .cards-grid{grid-template-columns:minmax(0,1fr);gap:48px}
+  .fan{height:520px}
+  .safe{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ref-grid{grid-template-columns:minmax(0,1fr);gap:48px}
+  .faq-grid{grid-template-columns:minmax(0,1fr);gap:40px}
+  .foot-top{grid-template-columns:1fr 1fr 1fr;row-gap:40px}
+  .foot-brand{grid-column:1 / -1}
+}
+@media (min-width:1024px) and (max-width:1279px){
+  /* bento from 1024 uses the desktop grid (like the calculator); the tablet layout is for 768–1023 only */
+  .bento{grid-template-columns:repeat(12,minmax(0,1fr));grid-template-areas:"a a a a a a a b b b b b" "a a a a a a a c c c c c" "d d d d e e e e e e e e"}
+  /* cards, referral and FAQ also keep their desktop two-column layout from 1024 */
+  .cards-grid{grid-template-columns:1fr 1fr;gap:64px}
+  .fan{height:720px;zoom:.8} /* narrower column: whole fan scaled to 80% so the cards stay on screen */
+  .ticks.feats{grid-template-columns:minmax(0,1fr)}
+  .ref-grid{grid-template-columns:1fr 1fr;gap:64px}
+  .faq-grid{grid-template-columns:360px 1fr;gap:64px}
+  /* CTA: narrower banner — smaller headline and a 480 text column so the copy stays off her face */
+  .cta{grid-template-columns:minmax(0,480px) 1fr}
+  .cta .d1{font-size:64px;line-height:68px}
+  .cta .d1 .chip{width:88px;height:52px;margin:-6px 6px 0}
+  .cta .d1 .chip svg{width:32px;height:32px}
+  .cta-copy .lead{max-width:400px}
+  .foot-top{grid-template-columns:2fr 1fr 1fr 1fr}
+  .foot-brand{grid-column:auto}
+}
+@media (max-width:1023px){
+  /* CTA below 1024: the phone banner, it only gets wider — height stays 716, copy sits at the bottom on the dark seats */
+  .cta{display:flex;flex-direction:column;justify-content:flex-end;height:716px;min-height:0;padding:32px;background:#0b0a0d}
+  /* tall photo (Figma 1012:22010) at a fixed 653×964 — the size and offset of the phone layout (Figma 1009:22001: x −186, y −258).
+     It never scales or re-crops: she stays pinned near the top, the dark seats sit under the copy; a wider banner only reveals more
+     of the photo, and beyond its edges they melt into the seat colour */
+  .cta::before{content:"";position:absolute;inset:0;z-index:0;background:image-set(url(img/cta-ride-xl-2x.jpg) 2x,url(img/cta-ride-xl-3x.jpg) 3x) calc(50% - 33px) -258px/653px 964px no-repeat;-webkit-mask:linear-gradient(90deg,transparent calc(50% - 360px),#000 calc(50% - 300px),#000 calc(50% + 234px),transparent calc(50% + 294px));mask:linear-gradient(90deg,transparent calc(50% - 360px),#000 calc(50% - 300px),#000 calc(50% + 234px),transparent calc(50% + 294px))}
+  .cta-copy{padding:0;align-self:flex-start} /* left, not centred (the desktop rule centres it vertically in the grid) */
+  .calc-grid{grid-template-columns:minmax(0,1fr)}
+  /* trust strip: when the row no longer fits, both captions go above and below the marks — never one beside, one under */
+  .trust .wrap{flex-direction:column;gap:16px}
+}
+@media (min-width:768px) and (max-width:1023px){
+  /* CTA banner on portrait tablets: copy spans the banner — 64 headline in 2 lines, subtitle in 1 */
+  .cta-copy{max-width:none}
+  .cta-copy .lead{max-width:none}
+  .cta .d1{font-size:64px;line-height:68px}
+  .cta .d1 .chip{width:88px;height:52px;margin:-6px 6px 0}
+  .cta .d1 .chip svg{width:32px;height:32px}
+}
+@media (max-width:767px){
+  :root{--gut:16px}
+  .wrap{padding:0 16px}
+  /* mobile type steps (even sizes) */
+  .d1{font-size:44px;line-height:48px}
+  .d2{font-size:32px;line-height:36px} /* widest rolling word ("Made for freelancers") still fits 343px, so lines never jump */
+  .br-m{display:inline}
+  .h3,.glow b{font-size:20px;line-height:28px} /* security card titles follow the card-title (H3) style */
+  .small{font-size:12px;line-height:16px}
+  .foot .small{font-size:14px;line-height:20px} /* footer copy keeps 14/20 */
+  .lead{font-size:16px;line-height:24px}
+  .body{font-size:14px;line-height:20px}
+  .moment-time{font-size:12px;line-height:16px}
+  /* mobile text steps down one notch (20→16, 16→14, 14→12) to bring back the contrast with the headings;
+     UI replicas (toasts, balance rows, calculator, chat, buttons, nav) keep app sizes */
+  .glow p,.qa-body p{font-size:14px;line-height:20px}
+  .ticks b{font-size:14px;line-height:20px}
+  /* list icons step down with the text: 24px icon in a 24×40 frame (two 20px lines) */
+  .ticks li{grid-template-columns:24px 1fr}
+  .tick-ico{width:24px;height:40px}
+  .tick-ico svg{width:24px;height:24px}
+  .tile .who{font-size:12px;line-height:16px;margin-bottom:12px}
+  .timer span{font-size:14px;line-height:20px}
+  .d2 .chip{width:56px;height:32px;margin:-4px 2px 0}
+  .d2 .chip svg{width:20px;height:20px}
+  .d1 .chip{width:64px;height:40px;margin:-6px 4px 0}
+  .d1 .chip svg{width:24px;height:24px}
+  /* nav on phones: one 64px row — logo, Personal ▾ dropdown, Get the app */
+  .nav .wrap{grid-template-columns:auto 1fr auto;grid-template-areas:"l a r";height:64px;column-gap:8px}
+  .nav [data-logo]{grid-area:l}
+  .acct{display:block;grid-area:a;justify-self:end} /* sits next to Get the app, not the logo */
+  .nav-right{grid-area:r}
+  .nav .seg{display:none}
+  .hero{padding:16px 0 48px}
+  .hero .wrap{gap:32px}
+  /* heading → subtitle 16, subtitle → content 32 */
+  .hero-copy .d1,.cta-copy .d1{margin-bottom:16px}
+  .hero-copy .lead,.cta-copy .lead{margin-bottom:32px}
+  .d2+.lead{margin-top:16px}
+  .sec-head,.bento-head{gap:16px}
+  .sec-head .lead,.bento-head .lead{margin-top:0} /* the flex gap already spaces them */
+  .ticks{margin-top:32px}
+  .ticks.feats{margin:32px 0}
+  .stage{height:440px;border-radius:var(--r24)}
+  .stage .toast,.moment-media .toast{left:24px;right:24px;bottom:24px} /* same 24 inset as every card on the phone */
+  /* toast on phones: amount sits on the title row, subtitle spans underneath — always two lines */
+  .toast{grid-template-columns:40px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:8px;row-gap:0}
+  .toast-ico{grid-row:1 / 3;margin-right:8px}
+  .toast>div:nth-child(2){display:contents}
+  .toast b{grid-column:2;grid-row:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toast .amt{grid-column:3;grid-row:1;font-size:14px;line-height:20px}
+  .toast span{grid-column:2 / 4;grid-row:2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bars{right:24px;top:24px}
+  .trust .wrap{padding:24px 16px;gap:16px 32px}
+  .marks{gap:32px}
+  .sec,.day{padding:80px 0}
+  .sec-head{margin-bottom:40px}
+  .track button span{display:none}
+  .track{height:16px}
+  .rail{grid-auto-columns:100%;scroll-snap-type:x mandatory;scroll-padding:0 16px} /* cards span the column (same width as every panel); the pinned scroll stops each one flush with the gutter */
+  .moment-media{height:clamp(240px,calc(100svh - 440px),400px)} /* keeps the pinned day block within the screen */
+  .ui{padding:24px}
+  .panel{padding:24px;border-radius:var(--r24)}
+  /* phones: no white card around the widget (one frame fewer); only the amount fields turn white on the lilac panel */
+  .xw{padding:0;border-radius:0;background:none;box-shadow:none}
+  .xf{background:#fff}
+  .xf-head{white-space:nowrap}
+  .xamt{font-size:28px;line-height:36px}
+  .dd-pop{width:min(320px,calc(100vw - 64px))}
+  .bento{grid-template-columns:minmax(0,1fr);grid-template-areas:"a" "b" "c" "d" "e"}
+  .tile{padding:24px;border-radius:var(--r24)}
+  .month b{font-size:56px;line-height:56px}
+  .month b small{font-size:28px}
+  /* incoming payments stacked like phone notifications: newest in front, two peeking below.
+     Uses translate/scale (not transform) so the entry animation still works. */
+  .inbox{display:grid;padding-bottom:24px}
+  .inbox .row{grid-area:1 / 1;transform-origin:50% 100%}
+  .inbox .row:nth-child(1){z-index:3}
+  .inbox .row:nth-child(2){z-index:2;translate:0 12px;scale:.94}
+  .inbox .row:nth-child(3){z-index:1;translate:0 24px;scale:.88}
+  .inbox .row:not(:first-child)>*{visibility:hidden}
+  .row div span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row>div{min-width:0}
+  .fan{height:640px;zoom:.6} /* zoom shrinks the whole fan; height is in unzoomed px (≈384 on screen) */
+  .ticks.feats{grid-template-columns:minmax(0,1fr)}
+  .safe{grid-template-columns:minmax(0,1fr)}
+  .glow{min-height:0;padding:24px}
+  .glow p{min-height:0}
+  .legal-line{align-items:flex-start}
+  .steps b{font-size:20px;line-height:28px;margin-bottom:4px}
+  .steps li{padding:16px 0;gap:16px}
+  .ref-grid{gap:32px}
+  .qa summary{font-size:20px;line-height:28px;gap:16px}
+  .qa-body p{padding-right:0}
+  /* CTA on phones: vertical crop from the EU-landing file (Figma 5vxkrHIwUab8BJz3Fqt8HB 1009:22001, 348×696);
+     she sits in the upper half, the copy sits on the dark lower half — no overlay on the photo */
+  .cta{padding:24px;border-radius:var(--r24)}
+  /* phones: every content button spans the column, its content centred.
+     Store badges keep the official 144×48 artwork; only a same-colour plate behind it stretches. */
+  .btn:not(.btn--sm){width:100%}
+  .t-e .btn{align-self:stretch}
+  .hero-ctas,.cta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .badge{display:flex;justify-content:center;border-radius:7px;background:#000}
+  .badge:has(img[src*="-light"]){background:#fff}
+  .foot-top{grid-template-columns:1fr 1fr}
+  .foot-legal{flex-direction:column;gap:16px}
+}
+
+@media (max-width:374px){
+  /* 360px phones: tighter header so Get the app stays inside the gutter */
+  .nav .wrap{column-gap:4px}
+  .acct-btn{padding:0 10px 0 12px;gap:4px}
+  .nav-right .btn--brand{padding:0 12px}
+}
+/* ───────── Reduced motion ───────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important}
+  .js .hero-word,.js .hero .chip{opacity:1}
+  .js .stage{clip-path:none}
+  .slide img{transform:none!important}
+}
+</style>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Icons: iPay DS (Figma d5U8PftQiPzabfL8b5HH6K, 24px solid). Missing in DS → Font Awesome 6 Free Solid (CC BY 4.0): plane, mobile-screen-button, lock, bolt -->
+    <symbol id="i-card" viewBox="0 0 24 24"><path fill="currentColor" d="M2.40039 7.20005V8.40005H21.6004V7.20005C21.6004 5.8763 20.5241 4.80005 19.2004 4.80005H4.80039C3.47664 4.80005 2.40039 5.8763 2.40039 7.20005ZM2.40039 10.2V16.8C2.40039 18.1238 3.47664 19.2 4.80039 19.2H19.2004C20.5241 19.2 21.6004 18.1238 21.6004 16.8V10.2H2.40039ZM4.80039 15.9C4.80039 15.4013 5.20164 15 5.70039 15H7.50039C7.99914 15 8.40039 15.4013 8.40039 15.9C8.40039 16.3988 7.99914 16.8 7.50039 16.8H5.70039C5.20164 16.8 4.80039 16.3988 4.80039 15.9ZM10.2004 15.9C10.2004 15.4013 10.6016 15 11.1004 15H13.5004C13.9991 15 14.4004 15.4013 14.4004 15.9C14.4004 16.3988 13.9991 16.8 13.5004 16.8H11.1004C10.6016 16.8 10.2004 16.3988 10.2004 15.9Z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path fill="currentColor" d="M21.3149 1.41381C21.6824 1.28256 22.0874 1.37631 22.3649 1.65006C22.6424 1.92381 22.7324 2.33256 22.6012 2.70006L15.9262 21.3338C15.7387 21.8551 15.2474 22.2001 14.6962 22.2001C14.1637 22.2001 13.6837 21.8776 13.4849 21.3863L11.0774 15.4613C10.9087 15.0488 10.9837 14.5763 11.2724 14.2388L14.8162 10.0238C15.0074 9.79506 14.9924 9.46132 14.7824 9.25132C14.5724 9.04132 14.2349 9.02632 14.0099 9.21757L9.79494 12.7538C9.45369 13.0388 8.98494 13.1138 8.57244 12.9488L2.62869 10.5301C2.13744 10.3313 1.81494 9.85132 1.81494 9.31882C1.81494 8.76757 2.15994 8.27632 2.68119 8.08882L21.3149 1.41381Z"/></symbol>
+    <symbol id="i-in" viewBox="0 0 24 24"><path fill="currentColor" d="M19.1738 19.2998C19.8375 19.2998 20.3739 19.8363 20.374 20.5C20.3738 21.1635 19.8374 21.7002 19.1738 21.7002H4.82031C4.15673 21.7002 3.62038 21.1635 3.62012 20.5C3.62022 19.8363 4.15663 19.2998 4.82031 19.2998H19.1738ZM11.8232 2C12.4868 2.00017 13.0225 2.53655 13.0225 3.2002V13.1016L16.9756 9.14844C17.4442 8.68014 18.2051 8.6802 18.6738 9.14844C19.1426 9.61719 19.1426 10.3789 18.6738 10.8477L12.6738 16.8477H12.6709C12.2021 17.3164 11.4404 17.3164 10.9717 16.8477L4.97168 10.8477C4.50293 10.3789 4.50293 9.61719 4.97168 9.14844C5.44045 8.67992 6.20223 8.67977 6.6709 9.14844L10.623 13.1016V3.2002C10.623 2.53645 11.1595 2 11.8232 2Z"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><path fill="currentColor" d="M19.1689 19.2998C19.8327 19.2998 20.3691 19.8363 20.3691 20.5C20.369 21.1637 19.8326 21.7002 19.1689 21.7002H4.81543C4.15174 21.7002 3.61534 21.1637 3.61523 20.5C3.61523 19.8363 4.15168 19.2998 4.81543 19.2998H19.1689ZM10.9668 2.35156C11.4355 1.88281 12.1973 1.88281 12.666 2.35156H12.6689L18.6689 8.35156C19.1377 8.82031 19.1377 9.58203 18.6689 10.0508C18.2003 10.519 17.4393 10.5191 16.9707 10.0508L13.0176 6.09766V15.999C13.0176 16.6627 12.482 17.199 11.8184 17.1992C11.1546 17.1992 10.6182 16.6628 10.6182 15.999V6.09766L6.66602 10.0508C6.19734 10.5195 5.43557 10.5193 4.9668 10.0508C4.49805 9.58203 4.49805 8.82031 4.9668 8.35156L10.9668 2.35156Z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path fill="currentColor" d="M12.0001 3.6001C8.97008 3.6001 6.54383 4.9801 4.77758 6.6226C3.02258 8.25385 1.84883 10.2001 1.29008 11.5388C1.16633 11.8351 1.16633 12.1651 1.29008 12.4613C1.84883 13.8001 3.02258 15.7501 4.77758 17.3776C6.54383 19.0163 8.97008 20.4001 12.0001 20.4001C15.0301 20.4001 17.4563 19.0201 19.2226 17.3776C20.9776 15.7463 22.1513 13.8001 22.7101 12.4613C22.8338 12.1651 22.8338 11.8351 22.7101 11.5388C22.1513 10.2001 20.9776 8.2501 19.2226 6.6226C17.4563 4.98385 15.0301 3.6001 12.0001 3.6001ZM6.60008 12.0001C6.60008 9.01885 9.01883 6.6001 12.0001 6.6001C14.9813 6.6001 17.4001 9.01885 17.4001 12.0001C17.4001 14.9813 14.9813 17.4001 12.0001 17.4001C9.01883 17.4001 6.60008 14.9813 6.60008 12.0001ZM12.0001 9.6001C12.0001 10.9238 10.9238 12.0001 9.60008 12.0001C9.16883 12.0001 8.76383 11.8876 8.41133 11.6851C8.37383 12.0938 8.40758 12.5138 8.52008 12.9301C9.03383 14.8501 11.0101 15.9901 12.9301 15.4763C14.8501 14.9626 15.9901 12.9863 15.4763 11.0663C15.0188 9.3526 13.3951 8.26135 11.6851 8.41135C11.8838 8.7601 12.0001 9.1651 12.0001 9.6001Z"/></symbol>
+    <symbol id="i-card-details" viewBox="0 0 24 24"><path fill="currentColor" d="M21.251 15.0098C21.5026 15.0295 21.7246 15.0793 21.917 15.1582C22.1736 15.2636 22.369 15.4175 22.502 15.6191C22.6393 15.8162 22.708 16.0546 22.708 16.334C22.708 16.5173 22.6732 16.687 22.6045 16.8428C22.5357 16.9986 22.4347 17.1299 22.3018 17.2354C22.214 17.3018 22.1155 17.3549 22.0078 17.3975C22.2465 17.4643 22.4389 17.5862 22.584 17.7646C22.7674 17.9801 22.8593 18.2507 22.8594 18.5762C22.8594 18.8696 22.7831 19.1243 22.6318 19.3398C22.4805 19.5551 22.2626 19.7204 21.9785 19.835C21.6944 19.9448 21.3549 20 20.9609 20C20.7274 20 20.4933 19.9774 20.2598 19.9316C20.0261 19.8858 19.8238 19.8208 19.6543 19.7383C19.5079 19.6696 19.4043 19.5851 19.3447 19.4844C19.2898 19.3836 19.2672 19.2801 19.2764 19.1748C19.2855 19.0695 19.3217 18.975 19.3857 18.8926C19.4544 18.8102 19.5422 18.7551 19.6475 18.7275C19.7573 18.6956 19.8813 18.7092 20.0186 18.7686C20.1125 18.8092 20.2035 18.8406 20.2891 18.8672C20.3182 18.8763 20.3479 18.8818 20.376 18.8896L20.375 18.8906C20.4133 18.9007 20.4498 18.9128 20.4863 18.9199C20.6283 18.9474 20.7711 18.9619 20.9131 18.9619C21.0777 18.9619 21.2153 18.9428 21.3252 18.9062C21.4351 18.8696 21.5182 18.8145 21.5732 18.7412C21.6282 18.6633 21.6553 18.5667 21.6553 18.4521C21.6552 18.2919 21.5979 18.1749 21.4834 18.1016C21.3734 18.0239 21.2102 17.9854 20.9951 17.9854H20.624C20.45 17.9853 20.3162 17.9415 20.2246 17.8545C20.1331 17.7674 20.0879 17.6427 20.0879 17.4824C20.088 17.3224 20.1333 17.1984 20.2246 17.1113C20.3162 17.0243 20.45 16.9805 20.624 16.9805H20.8711C21.0039 16.9805 21.1174 16.9623 21.209 16.9258C21.305 16.8891 21.3783 16.8362 21.4287 16.7676C21.4791 16.6942 21.5039 16.6045 21.5039 16.499C21.5038 16.3479 21.4488 16.2332 21.3389 16.1553C21.2334 16.0776 21.0748 16.0381 20.8643 16.0381C20.7362 16.0381 20.6053 16.0526 20.4727 16.0801C20.3398 16.1076 20.197 16.1559 20.0459 16.2246C19.927 16.2748 19.8165 16.2862 19.7158 16.2588C19.6199 16.2313 19.5396 16.1782 19.4756 16.1006C19.4161 16.0181 19.379 15.9282 19.3652 15.832C19.3515 15.7313 19.3673 15.6323 19.4131 15.5361C19.4589 15.44 19.5467 15.36 19.6748 15.2959C19.8672 15.1997 20.0763 15.1256 20.3008 15.0752C20.5298 15.0248 20.7593 15 20.9883 15H20.9893C21.0797 15 21.1671 15.0032 21.251 15.0098ZM17.2021 15C17.5776 15 17.8916 15.0553 18.1436 15.165C18.4002 15.275 18.5956 15.4357 18.7285 15.6465C18.8615 15.8528 18.9277 16.1098 18.9277 16.417C18.9277 16.6094 18.8984 16.7972 18.8389 16.9805C18.7838 17.1638 18.6918 17.3479 18.5635 17.5312C18.4398 17.7145 18.2722 17.9091 18.0615 18.1152L17.2676 18.8994H18.6465C18.8157 18.8995 18.9442 18.9434 19.0312 19.0303C19.1229 19.1173 19.1689 19.2433 19.1689 19.4082C19.1689 19.5733 19.123 19.7022 19.0312 19.7939C18.9442 19.8808 18.8157 19.9247 18.6465 19.9248H16.2529C16.0516 19.9247 15.9041 19.8786 15.8125 19.7871C15.7255 19.6908 15.6816 19.5504 15.6816 19.3672C15.6817 19.2389 15.7097 19.1242 15.7646 19.0234C15.8242 18.9227 15.8996 18.8237 15.9912 18.7275L17.1953 17.4688C17.3738 17.2764 17.4999 17.111 17.5732 16.9736C17.651 16.8363 17.6904 16.6989 17.6904 16.5615C17.6904 16.3874 17.6331 16.2561 17.5186 16.1689C17.4039 16.082 17.2378 16.0381 17.0225 16.0381C16.9127 16.0382 16.7953 16.0549 16.6719 16.0869C16.5483 16.1145 16.4153 16.1651 16.2734 16.2383C16.1499 16.2931 16.0372 16.3089 15.9365 16.2861C15.8404 16.2632 15.7571 16.2126 15.6885 16.1348C15.6244 16.0569 15.5828 15.9669 15.5645 15.8662C15.5508 15.7657 15.5677 15.6673 15.6133 15.5713C15.6591 15.4706 15.7414 15.3874 15.8604 15.3232C16.0711 15.2087 16.2892 15.1256 16.5137 15.0752C16.7428 15.0248 16.9731 15 17.2021 15ZM13.8896 15.0137C14.0636 15.0137 14.1987 15.0599 14.2949 15.1514C14.3912 15.2384 14.4394 15.3666 14.4395 15.5361V18.8994H14.9902C15.1595 18.8995 15.288 18.9434 15.375 19.0303C15.4666 19.1173 15.5127 19.2433 15.5127 19.4082C15.5127 19.5733 15.4667 19.7022 15.375 19.7939C15.288 19.8807 15.1594 19.9238 14.9902 19.9238H12.5625C12.3932 19.9237 12.2615 19.8809 12.1699 19.7939C12.083 19.7023 12.0391 19.5731 12.0391 19.4082C12.0391 19.2435 12.0831 19.1173 12.1699 19.0303C12.2615 18.9432 12.3931 18.8995 12.5625 18.8994H13.1807V16.4404L12.7617 16.6982C12.6428 16.7714 12.5301 16.8017 12.4248 16.7881C12.3196 16.7697 12.2295 16.7236 12.1562 16.6504C12.0831 16.5771 12.0346 16.4871 12.0117 16.3818C11.989 16.2768 11.9981 16.1715 12.0391 16.0664C12.0803 15.9611 12.1635 15.8712 12.2871 15.7979L13.2363 15.2061C13.337 15.142 13.4407 15.0936 13.5459 15.0615C13.6557 15.0296 13.7708 15.0137 13.8896 15.0137ZM21.6006 13.8428C21.3987 13.8137 21.194 13.7998 20.9893 13.7998C20.6714 13.7998 20.3547 13.8347 20.043 13.9033L20.0381 13.9053C19.7253 13.9755 19.4238 14.0801 19.1387 14.2227C19.1021 14.241 19.066 14.2633 19.0283 14.2852C18.8998 14.201 18.7645 14.1275 18.623 14.0664L18.624 14.0654C18.6229 14.065 18.6212 14.0649 18.6201 14.0645C18.6192 14.064 18.6181 14.063 18.6172 14.0625L18.6162 14.0635C18.1702 13.8705 17.6836 13.7998 17.2021 13.7998C16.8844 13.7998 16.5685 13.8348 16.2568 13.9033L16.252 13.9053C15.9147 13.981 15.5922 14.1033 15.2881 14.2686L15.2891 14.2695C15.25 14.2907 15.2106 14.3133 15.1719 14.3379C15.1549 14.3205 15.1392 14.3012 15.1211 14.2842L15.123 14.2822C15.1186 14.278 15.1129 14.2747 15.1084 14.2705C15.1056 14.2679 15.1034 14.2643 15.1006 14.2617L15.0996 14.2627C14.722 13.916 14.2658 13.8135 13.8896 13.8135C13.7185 13.8135 13.547 13.831 13.3779 13.8672L13.21 13.9102L13.1963 13.9141C12.9823 13.9792 12.7837 14.0736 12.6016 14.1885V14.1875L11.6523 14.7793L11.6533 14.7803C11.4062 14.9312 11.1544 15.1562 10.9893 15.4795L10.9219 15.6289C10.799 15.943 10.7642 16.2896 10.8398 16.6377C10.9096 16.9582 11.066 17.2564 11.3086 17.499C11.4591 17.6494 11.632 17.7652 11.8184 17.8477C11.6547 17.9184 11.4924 18.0189 11.3438 18.1602L11.3223 18.1816C11.0101 18.4939 10.8872 18.8699 10.8525 19.2002H4.80078C3.47703 19.2002 2.40039 18.1236 2.40039 16.7998V10.2002H21.6006V13.8428ZM5.7002 15C5.20167 15.0001 4.80099 15.4009 4.80078 15.8994C4.80078 16.3981 5.20154 16.7997 5.7002 16.7998H7.5C7.99875 16.7998 8.40039 16.3982 8.40039 15.8994C8.40018 15.4008 7.99862 15 7.5 15H5.7002ZM19.2002 4.7998C20.5239 4.7998 21.6006 5.87645 21.6006 7.2002V8.39941H2.40039V7.2002C2.40039 5.87645 3.47703 4.7998 4.80078 4.7998H19.2002Z"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path fill="currentColor" d="M13.2076 2.39995C13.2076 1.7362 12.6713 1.19995 12.0076 1.19995C11.3438 1.19995 10.8076 1.7362 10.8076 2.39995V4.7287L10.2451 4.1662C9.89257 3.8137 9.32257 3.8137 8.97382 4.1662C8.62507 4.5187 8.62132 5.0887 8.97382 5.43745L10.8113 7.27495V9.92245L8.51632 8.5987L7.84507 6.08995C7.71757 5.60995 7.22257 5.32495 6.74257 5.45245C6.26257 5.57995 5.97382 6.07495 6.10132 6.55495L6.30757 7.3237L4.29382 6.1612C3.72007 5.8312 2.98507 6.0262 2.65507 6.59995C2.32507 7.1737 2.52007 7.9087 3.09382 8.2387L5.10757 9.4012L4.33882 9.60745C3.85882 9.73495 3.57382 10.23 3.70132 10.71C3.82882 11.19 4.32382 11.475 4.80382 11.3475L7.31257 10.6762L9.60757 12L7.31257 13.3237L4.80382 12.6525C4.32382 12.525 3.82882 12.81 3.70132 13.29C3.57382 13.77 3.85882 14.265 4.33882 14.3925L5.10757 14.5987L3.09382 15.7612C2.52007 16.0912 2.32507 16.8262 2.65507 17.4C2.98507 17.9737 3.72007 18.1725 4.29382 17.8387L6.30757 16.6762L6.10132 17.445C5.97382 17.925 6.25882 18.42 6.73882 18.5475C7.21882 18.675 7.71382 18.39 7.84132 17.91L8.51257 15.4012L10.8076 14.0775V16.725L8.97007 18.5625C8.61757 18.915 8.61757 19.485 8.97007 19.8337C9.32257 20.1825 9.89257 20.1862 10.2413 19.8337L10.8038 19.2712V21.6C10.8038 22.2637 11.3401 22.8 12.0038 22.8C12.6676 22.8 13.2038 22.2637 13.2038 21.6V19.2712L13.7663 19.8337C14.1188 20.1862 14.6888 20.1862 15.0376 19.8337C15.3863 19.4812 15.3901 18.9112 15.0376 18.5625L13.2001 16.725V14.0775L15.4951 15.4012L16.1663 17.91C16.2938 18.39 16.7888 18.675 17.2688 18.5475C17.7488 18.42 18.0338 17.925 17.9063 17.445L17.7001 16.6762L19.7138 17.8387C20.2876 18.1687 21.0226 17.9737 21.3526 17.4C21.6826 16.8262 21.4876 16.0912 20.9138 15.7612L18.9001 14.5987L19.6688 14.3925C20.1488 14.265 20.4338 13.77 20.3063 13.29C20.1788 12.81 19.6838 12.525 19.2038 12.6525L16.6951 13.3237L14.4001 12L16.6951 10.6762L19.2038 11.3475C19.6838 11.475 20.1788 11.19 20.3063 10.71C20.4338 10.23 20.1488 9.73495 19.6688 9.60745L18.9001 9.4012L20.9138 8.2387C21.4876 7.9087 21.6863 7.1737 21.3526 6.59995C21.0188 6.0262 20.2876 5.8312 19.7138 6.1612L17.7001 7.3237L17.9063 6.55495C18.0338 6.07495 17.7488 5.57995 17.2688 5.45245C16.7888 5.32495 16.2938 5.60995 16.1663 6.08995L15.4951 8.5987L13.2001 9.92245V7.27495L15.0376 5.43745C15.3901 5.08495 15.3901 4.51495 15.0376 4.1662C14.6851 3.81745 14.1151 3.8137 13.7663 4.1662L13.2038 4.7287V2.39995H13.2076Z"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path fill="currentColor" d="M3.60039 4.8C2.93664 4.8 2.40039 5.33625 2.40039 6C2.40039 6.66375 2.93664 7.2 3.60039 7.2H6.85164C7.31289 8.26125 8.37039 9 9.60039 9C10.8304 9 11.8879 8.26125 12.3491 7.2H20.4004C21.0641 7.2 21.6004 6.66375 21.6004 6C21.6004 5.33625 21.0641 4.8 20.4004 4.8H12.3491C11.8879 3.73875 10.8304 3 9.60039 3C8.37039 3 7.31289 3.73875 6.85164 4.8H3.60039ZM3.60039 10.8C2.93664 10.8 2.40039 11.3363 2.40039 12C2.40039 12.6638 2.93664 13.2 3.60039 13.2H12.8516C13.3129 14.2613 14.3704 15 15.6004 15C16.8304 15 17.8879 14.2613 18.3491 13.2H20.4004C21.0641 13.2 21.6004 12.6638 21.6004 12C21.6004 11.3363 21.0641 10.8 20.4004 10.8H18.3491C17.8879 9.73875 16.8304 9 15.6004 9C14.3704 9 13.3129 9.73875 12.8516 10.8H3.60039ZM3.60039 16.8C2.93664 16.8 2.40039 17.3363 2.40039 18C2.40039 18.6638 2.93664 19.2 3.60039 19.2H5.65164C6.11289 20.2613 7.17039 21 8.40039 21C9.63039 21 10.6879 20.2613 11.1491 19.2H20.4004C21.0641 19.2 21.6004 18.6638 21.6004 18C21.6004 17.3363 21.0641 16.8 20.4004 16.8H11.1491C10.6879 15.7388 9.63039 15 8.40039 15C7.17039 15 6.11289 15.7388 5.65164 16.8H3.60039Z"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path fill="currentColor" d="M11.9996 2.3999C11.3359 2.3999 10.7996 2.93615 10.7996 3.5999V3.7199C8.06211 4.2749 5.99961 6.6974 5.99961 9.5999V10.4137C5.99961 12.2174 5.38461 13.9687 4.25961 15.3787L3.89211 15.8362C3.70086 16.0724 3.59961 16.3649 3.59961 16.6687C3.59961 17.4037 4.19586 17.9999 4.93086 17.9999H19.0646C19.7996 17.9999 20.3959 17.4037 20.3959 16.6687C20.3959 16.3649 20.2946 16.0724 20.1034 15.8362L19.7359 15.3787C18.6146 13.9687 17.9996 12.2174 17.9996 10.4137V9.5999C17.9996 6.6974 15.9371 4.2749 13.1996 3.7199V3.5999C13.1996 2.93615 12.6634 2.3999 11.9996 2.3999ZM9.67461 19.7999C9.94086 20.8349 10.8821 21.5999 11.9996 21.5999C13.1171 21.5999 14.0584 20.8349 14.3246 19.7999H9.67461Z"/></symbol>
+    <symbol id="i-face" viewBox="0 0 24 24"><path fill="currentColor" d="M9.06061 10.1831C9.0606 10.4384 8.97765 10.6961 8.78281 10.891C8.58793 11.0858 8.33009 11.1687 8.07475 11.1687C7.81984 11.1687 7.56487 11.0828 7.37311 10.8882C7.18191 10.6942 7.09903 10.4383 7.09901 10.1831V8.87903C7.09901 8.6246 7.18117 8.36931 7.36793 8.17418C7.55674 7.97692 7.81218 7.88333 8.07475 7.88331C8.33024 7.88331 8.58965 7.96658 8.78528 8.16505C8.98023 8.36287 9.06061 8.62312 9.06061 8.87903V10.1831ZM16.0129 10.1831C16.0129 10.4383 15.93 10.6942 15.7388 10.8882C15.547 11.0829 15.2919 11.1687 15.0369 11.1687C14.7824 11.1687 14.5254 11.0865 14.3294 10.8961C14.1317 10.7041 14.0415 10.4459 14.0414 10.1831V8.87903C14.0414 8.61579 14.1287 8.35502 14.3266 8.15987C14.5235 7.96586 14.7822 7.88331 15.0369 7.88331C15.2995 7.88332 15.5549 7.97691 15.7437 8.17418C15.9305 8.36931 16.0129 8.6246 16.0129 8.87903V10.1831ZM5.17245 19.4639H7.8199C8.02533 19.4639 8.25984 19.5204 8.44457 19.698C8.63239 19.8786 8.69768 20.1159 8.6977 20.3318C8.6977 20.5478 8.63242 20.7852 8.44457 20.9659C8.25984 21.1434 8.02533 21.2 7.8199 21.2H5.15271C4.20212 21.2 3.39211 20.952 2.82179 20.3849C2.25106 19.8172 2 19.0089 2 18.0569V15.39C2 15.1849 2.05621 14.9522 2.22771 14.767C2.40459 14.5761 2.64215 14.5023 2.86817 14.5023L2.95329 14.5058C3.15254 14.5225 3.35364 14.6 3.50839 14.767C3.67989 14.9522 3.7361 15.1849 3.7361 15.39V18.0177C3.7361 18.5772 3.88058 18.9168 4.0815 19.1185C4.28212 19.3199 4.61875 19.4639 5.17245 19.4639ZM18.0275 19.4639C18.5578 19.4639 18.8981 19.3217 19.1064 19.1158C19.3136 18.9108 19.4639 18.5697 19.4639 18.0177V15.39C19.4639 15.1849 19.5201 14.9522 19.6916 14.767C19.8685 14.5761 20.1058 14.5023 20.3318 14.5023L20.4172 14.5058C20.6164 14.5225 20.8176 14.6 20.9723 14.767C21.1438 14.9522 21.2 15.1849 21.2 15.39V18.0569C21.2 18.995 20.951 19.8012 20.3854 20.3715C19.819 20.9425 19.0117 21.2 18.0569 21.2H15.3801C15.1747 21.2 14.9402 21.1434 14.7554 20.9659C14.5676 20.7852 14.5023 20.5478 14.5023 20.3318C14.5023 20.1159 14.5676 19.8786 14.7554 19.698C14.9402 19.5204 15.1747 19.4639 15.3801 19.4639H18.0275ZM8.77097 13.5803C8.89208 13.5803 9.02401 13.602 9.1588 13.6694C9.2765 13.7283 9.37032 13.8098 9.44868 13.8922C9.96192 14.397 10.7403 14.7571 11.5166 14.7572C12.2951 14.7572 13.081 14.3955 13.5813 13.8951L13.5816 13.8954C13.6676 13.8049 13.7674 13.7201 13.8905 13.6615C14.0282 13.5959 14.1566 13.5803 14.2623 13.5803L14.303 13.5813C14.7216 13.6014 15.0912 13.9296 15.0912 14.4093C15.0912 14.6934 14.9614 14.9113 14.8104 15.0456C13.9258 15.9226 12.7267 16.4247 11.5166 16.4247C10.3062 16.4247 9.07491 15.9314 8.20132 15.0246C8.09547 14.9166 7.96073 14.7284 7.944 14.4643L7.94227 14.4093L7.94326 14.3634C7.96674 13.8936 8.34952 13.5804 8.77097 13.5803ZM10.6539 11.7369H10.9134V8.71225C10.9134 8.51604 10.9654 8.2812 11.151 8.09967C11.3345 7.92015 11.5663 7.87369 11.752 7.87368C11.937 7.87368 12.1745 7.9175 12.3606 8.10362C12.5467 8.28974 12.5905 8.52727 12.5905 8.71225V11.7226C12.5905 12.2025 12.4703 12.6536 12.1413 12.9806C11.8128 13.307 11.3624 13.4242 10.889 13.4242H10.8009C10.5941 13.4242 10.3441 13.3895 10.138 13.2325C9.91826 13.0651 9.83539 12.8284 9.8259 12.6093L9.82492 12.5659L9.8259 12.5225C9.8477 12.0781 10.2031 11.7369 10.6539 11.7369ZM2 7.81003V5.13322C2 4.18538 2.25145 3.37959 2.82229 2.8134C3.39247 2.24793 4.20212 2.00001 5.15271 2H7.8199C8.02533 2 8.25984 2.05656 8.44457 2.23413C8.63242 2.41475 8.6977 2.65218 8.6977 2.86817C8.69768 3.08414 8.63239 3.32138 8.44457 3.50197C8.25984 3.67956 8.02533 3.7361 7.8199 3.7361H5.17245C4.61875 3.7361 4.28181 3.8802 4.081 4.081C3.8802 4.28181 3.7361 4.61875 3.7361 5.17245V7.81003C3.7361 8.01549 3.67961 8.25021 3.50197 8.43495C3.32138 8.62276 3.08413 8.68806 2.86817 8.68808C2.65218 8.68808 2.41475 8.6228 2.23413 8.43495C2.05649 8.25021 2 8.01549 2 7.81003ZM19.4639 7.81003V5.17245C19.4639 4.62634 19.3143 4.28754 19.1072 4.08347C18.8987 3.87811 18.5578 3.7361 18.0275 3.7361H15.3801C15.1747 3.7361 14.9402 3.67956 14.7554 3.50197C14.5676 3.32138 14.5023 3.08414 14.5023 2.86817C14.5023 2.65218 14.5676 2.41475 14.7554 2.23413C14.9402 2.05656 15.1747 2 15.3801 2H18.0569C19.0103 2 19.8176 2.25422 20.3844 2.82253C20.9509 3.39065 21.2 4.19514 21.2 5.13322V7.81003C21.2 8.01549 21.1435 8.25021 20.9659 8.43495C20.7852 8.6228 20.5478 8.68808 20.3318 8.68808C20.1159 8.68806 19.8786 8.62276 19.698 8.43495C19.5204 8.25021 19.4639 8.01549 19.4639 7.81003Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5998 11.7C12.0861 11.7 14.0998 9.6862 14.0998 7.19995C14.0998 4.7137 12.0861 2.69995 9.5998 2.69995C7.11355 2.69995 5.0998 4.7137 5.0998 7.19995C5.0998 9.6862 7.11355 11.7 9.5998 11.7ZM8.48605 13.8C4.7923 13.8 1.7998 16.7924 1.7998 20.4862C1.7998 21.1012 2.29855 21.6 2.91355 21.6H12.3448C10.9873 20.0025 10.1998 17.9437 10.1998 15.7649V14.5987C10.1998 14.325 10.2373 14.055 10.3086 13.8H8.48605ZM17.8986 20.7187L17.3998 20.955V13.9012L20.9998 15.1012V15.8362C20.9998 17.9287 19.7923 19.8299 17.8986 20.7224V20.7187ZM17.0211 12.1312L12.8211 13.53C12.3298 13.695 11.9998 14.1525 11.9998 14.67V15.8362C11.9998 18.6262 13.6123 21.1649 16.1323 22.35L16.8261 22.6762C17.0061 22.7587 17.2011 22.8037 17.3961 22.8037C17.5911 22.8037 17.7898 22.7587 17.9661 22.6762L18.6598 22.35C21.1873 21.1612 22.7998 18.6225 22.7998 15.8325V14.6662C22.7998 14.1487 22.4698 13.6912 21.9786 13.5262L17.7786 12.1274C17.5311 12.045 17.2648 12.045 17.0211 12.1274V12.1312Z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><path fill="currentColor" d="M5.9998 2.3999C5.33605 2.3999 4.7998 2.93615 4.7998 3.5999C4.7998 4.26365 5.33605 4.7999 5.9998 4.7999V5.2124C5.9998 6.8024 6.63355 8.32865 7.75855 9.45365L10.3048 11.9999L7.75855 14.5462C6.63355 15.6712 5.9998 17.1974 5.9998 18.7874V19.1999C5.33605 19.1999 4.7998 19.7362 4.7998 20.3999C4.7998 21.0637 5.33605 21.5999 5.9998 21.5999H17.9998C18.6636 21.5999 19.1998 21.0637 19.1998 20.3999C19.1998 19.7362 18.6636 19.1999 17.9998 19.1999V18.7874C17.9998 17.1974 17.3661 15.6712 16.2411 14.5462L13.6948 11.9999L16.2411 9.45365C17.3661 8.32865 17.9998 6.8024 17.9998 5.2124V4.7999C18.6636 4.7999 19.1998 4.26365 19.1998 3.5999C19.1998 2.93615 18.6636 2.3999 17.9998 2.3999H5.9998ZM15.5998 18.7874V19.1999H8.3998V18.7874C8.3998 17.8312 8.77855 16.9162 9.45355 16.2412L11.9998 13.6949L14.5461 16.2412C15.2211 16.9162 15.5998 17.8312 15.5998 18.7874Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="currentColor" d="M12.0004 21.5999C6.69789 21.5999 2.40039 17.3024 2.40039 11.9999C2.40039 6.6974 6.69789 2.3999 12.0004 2.3999C17.3029 2.3999 21.6004 6.6974 21.6004 11.9999C21.6004 17.3024 17.3029 21.5999 12.0004 21.5999ZM16.4254 7.86365C16.0241 7.57115 15.4616 7.66115 15.1691 8.0624L10.6916 14.2199L8.73789 12.2662C8.38539 11.9137 7.81539 11.9137 7.46664 12.2662C7.11789 12.6187 7.11414 13.1887 7.46664 13.5374L10.1666 16.2374C10.3541 16.4249 10.6091 16.5187 10.8716 16.4999C11.1341 16.4812 11.3741 16.3462 11.5279 16.1324L16.6241 9.1199C16.9166 8.71865 16.8266 8.15615 16.4254 7.86365Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="currentColor" d="M13.2001 4.8001C13.2001 4.13635 12.6638 3.6001 12.0001 3.6001C11.3363 3.6001 10.8001 4.13635 10.8001 4.8001V10.8001H4.8001C4.13635 10.8001 3.6001 11.3363 3.6001 12.0001C3.6001 12.6638 4.13635 13.2001 4.8001 13.2001H10.8001V19.2001C10.8001 19.8638 11.3363 20.4001 12.0001 20.4001C12.6638 20.4001 13.2001 19.8638 13.2001 19.2001V13.2001H19.2001C19.8638 13.2001 20.4001 12.6638 20.4001 12.0001C20.4001 11.3363 19.8638 10.8001 19.2001 10.8001H13.2001V4.8001Z"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path fill="currentColor" d="M3.6001 12C3.6001 11.3363 4.13635 10.8 4.8001 10.8H19.2001C19.8638 10.8 20.4001 11.3363 20.4001 12C20.4001 12.6638 19.8638 13.2 19.2001 13.2H4.8001C4.13635 13.2 3.6001 12.6638 3.6001 12Z"/></symbol>
+    <symbol id="i-rate" viewBox="0 0 24 24"><path fill="currentColor" d="M10.8 7.19998C10.8 5.21248 9.18748 3.59998 7.19998 3.59998C5.21248 3.59998 3.59998 5.21248 3.59998 7.19998C3.59998 9.18748 5.21248 10.8 7.19998 10.8C9.18748 10.8 10.8 9.18748 10.8 7.19998ZM20.4 16.8C20.4 14.8125 18.7875 13.2 16.8 13.2C14.8125 13.2 13.2 14.8125 13.2 16.8C13.2 18.7875 14.8125 20.4 16.8 20.4C18.7875 20.4 20.4 18.7875 20.4 16.8ZM20.0475 5.64748C20.5162 5.17873 20.5162 4.41748 20.0475 3.94873C19.5787 3.47998 18.8175 3.47998 18.3487 3.94873L3.94873 18.3487C3.47998 18.8175 3.47998 19.5787 3.94873 20.0475C4.41748 20.5162 5.17873 20.5162 5.64748 20.0475L20.0475 5.64748Z"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path fill="currentColor" d="M5.3248 2.48251C5.64355 2.33626 6.01855 2.38876 6.2848 2.61751L7.7998 3.91501L9.3148 2.61751C9.6523 2.32876 10.1511 2.32876 10.4848 2.61751L11.9998 3.91501L13.5148 2.61751C13.8523 2.32876 14.3473 2.32876 14.6848 2.61751L16.1998 3.91501L17.7148 2.61751C17.9811 2.38876 18.3561 2.33626 18.6748 2.48251C18.9936 2.62876 19.1998 2.94751 19.1998 3.30001V20.7C19.1998 21.0525 18.9936 21.3713 18.6748 21.5175C18.3561 21.6638 17.9811 21.6113 17.7148 21.3825L16.1998 20.085L14.6848 21.3825C14.3473 21.6713 13.8523 21.6713 13.5148 21.3825L11.9998 20.085L10.4848 21.3825C10.1473 21.6713 9.64855 21.6713 9.3148 21.3825L7.7998 20.085L6.2848 21.3825C6.01855 21.6113 5.64355 21.6638 5.3248 21.5175C5.00605 21.3713 4.7998 21.0525 4.7998 20.7V3.30001C4.7998 2.94751 5.00605 2.62876 5.3248 2.48251ZM8.6998 7.50001C8.20105 7.50001 7.7998 7.90126 7.7998 8.40001C7.7998 8.89876 8.20105 9.30001 8.6998 9.30001H15.2998C15.7986 9.30001 16.1998 8.89876 16.1998 8.40001C16.1998 7.90126 15.7986 7.50001 15.2998 7.50001H8.6998ZM7.7998 15.6C7.7998 16.0988 8.20105 16.5 8.6998 16.5H15.2998C15.7986 16.5 16.1998 16.0988 16.1998 15.6C16.1998 15.1013 15.7986 14.7 15.2998 14.7H8.6998C8.20105 14.7 7.7998 15.1013 7.7998 15.6ZM8.6998 11.1C8.20105 11.1 7.7998 11.5013 7.7998 12C7.7998 12.4988 8.20105 12.9 8.6998 12.9H15.2998C15.7986 12.9 16.1998 12.4988 16.1998 12C16.1998 11.5013 15.7986 11.1 15.2998 11.1H8.6998Z"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path fill="currentColor" d="M14.4566 4.9799C14.7416 4.49615 15.2591 4.1999 15.8179 4.1999H15.9004C16.7291 4.1999 17.4004 4.87115 17.4004 5.6999C17.4004 6.52865 16.7291 7.1999 15.9004 7.1999H13.1516L14.4566 4.9799ZM9.54414 4.9799L10.8491 7.1999H8.10039C7.27164 7.1999 6.60039 6.52865 6.60039 5.6999C6.60039 4.87115 7.27164 4.1999 8.10039 4.1999H8.18289C8.74164 4.1999 9.26289 4.49615 9.54414 4.9799ZM12.9041 4.06865L12.0004 5.60615L11.0966 4.06865C10.4891 3.03365 9.37914 2.3999 8.18289 2.3999H8.10039C6.27789 2.3999 4.80039 3.8774 4.80039 5.6999C4.80039 6.2399 4.93164 6.7499 5.16039 7.1999H3.60039C2.93664 7.1999 2.40039 7.73615 2.40039 8.3999V9.5999C2.40039 10.2637 2.93664 10.7999 3.60039 10.7999H20.4004C21.0641 10.7999 21.6004 10.2637 21.6004 9.5999V8.3999C21.6004 7.73615 21.0641 7.1999 20.4004 7.1999H18.8404C19.0691 6.7499 19.2004 6.2399 19.2004 5.6999C19.2004 3.8774 17.7229 2.3999 15.9004 2.3999H15.8179C14.6216 2.3999 13.5116 3.03365 12.9041 4.0649V4.06865ZM20.4004 12.5999H12.9004V20.3999H18.0004C19.3241 20.3999 20.4004 19.3237 20.4004 17.9999V12.5999ZM11.1004 12.5999H3.60039V17.9999C3.60039 19.3237 4.67664 20.3999 6.00039 20.3999H11.1004V12.5999Z"/></symbol>
+    <symbol id="i-tick" viewBox="0 0 24 24"><path fill="currentColor" d="M19.9046 5.02886C20.4409 5.41886 20.5609 6.16886 20.1709 6.70511L10.5709 19.9051C10.3646 20.1901 10.0459 20.3664 9.6934 20.3964C9.3409 20.4264 8.99965 20.2951 8.75215 20.0476L3.95215 15.2476C3.4834 14.7789 3.4834 14.0176 3.95215 13.5489C4.4209 13.0801 5.18215 13.0801 5.6509 13.5489L9.45715 17.3551L18.2322 5.29136C18.6221 4.75511 19.3722 4.63511 19.9084 5.02511L19.9046 5.02886Z"/></symbol>
+    <symbol id="i-bolt" viewBox="-96 -64 640 640"><path fill="currentColor" d="M349.4 44.6c5.9-13.7 1.5-29.7-10.6-38.5s-28.6-8-39.9 1.8l-256 224c-10 8.8-13.6 22.9-8.9 35.3S50.7 288 64 288l111.5 0L98.6 467.4c-5.9 13.7-1.5 29.7 10.6 38.5s28.6 8 39.9-1.8l256-224c10-8.8 13.6-22.9 8.9-35.3s-16.6-20.7-30-20.7l-111.5 0L349.4 44.6z"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path fill="currentColor" d="M6.35254 11.1525C5.88379 11.6212 5.88379 12.3825 6.35254 12.8512L13.5525 20.0512C14.0213 20.52 14.7825 20.52 15.2513 20.0512C15.72 19.5825 15.72 18.8212 15.2513 18.3525L8.89879 12L15.2475 5.64748C15.7163 5.17873 15.7163 4.41748 15.2475 3.94873C14.7788 3.47998 14.0175 3.47998 13.5488 3.94873L6.34879 11.1487L6.35254 11.1525Z"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path fill="currentColor" d="M17.6663 11.1525C18.1351 11.6212 18.1351 12.3825 17.6663 12.8512L10.4663 20.0512C9.99758 20.52 9.23633 20.52 8.76758 20.0512C8.29883 19.5825 8.29883 18.8212 8.76758 18.3525L15.1201 12L8.77133 5.64748C8.30258 5.17873 8.30258 4.41748 8.77133 3.94873C9.24008 3.47998 10.0013 3.47998 10.4701 3.94873L17.6701 11.1487L17.6663 11.1525Z"/></symbol>
+    <symbol id="i-plane" viewBox="-72 -104 720 720"><path fill="currentColor" d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></symbol>
+    <symbol id="i-phone" viewBox="-128 -64 640 640"><path fill="currentColor" d="M16 64C16 28.7 44.7 0 80 0L304 0c35.3 0 64 28.7 64 64l0 384c0 35.3-28.7 64-64 64L80 512c-35.3 0-64-28.7-64-64L16 64zM224 448a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM304 64L80 64l0 320 224 0 0-320z"/></symbol>
+    <symbol id="i-lock" viewBox="-96 -64 640 640"><path fill="currentColor" d="M144 144l0 48 160 0 0-48c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192l0-48C80 64.5 144.5 0 224 0s144 64.5 144 144l0 48 16 0c35.3 0 64 28.7 64 64l0 192c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 256c0-35.3 28.7-64 64-64l16 0z"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.5-.9-2.4-3.8ZM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.6-2.8 1.4-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.5 2.8-1.3Z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M4.2 2.6c-.3.3-.4.7-.4 1.2v16.4c0 .5.1.9.4 1.2l9.1-9.4-9.1-9.4Zm10.4 8.1 2.6-2.7-10.8-6.2c-.4-.2-.8-.3-1.1-.2l9.3 9.1Zm0 2.6-9.3 9.1c.3.1.7 0 1.1-.2l10.8-6.2-2.6-2.7Zm3.9-4.5-2.9 3.2 2.9 3.2 3.3-1.9c1-.6 1-1.5 0-2.1l-3.3-2.4Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path fill="currentColor" d="M2.40039 6.00005C2.40039 5.3363 2.93664 4.80005 3.60039 4.80005H18.0004C18.6641 4.80005 19.2004 5.3363 19.2004 6.00005C19.2004 6.6638 18.6641 7.20005 18.0004 7.20005H3.60039C2.93664 7.20005 2.40039 6.6638 2.40039 6.00005ZM4.80039 12C4.80039 11.3363 5.33664 10.8 6.00039 10.8H20.4004C21.0641 10.8 21.6004 11.3363 21.6004 12C21.6004 12.6638 21.0641 13.2 20.4004 13.2H6.00039C5.33664 13.2 4.80039 12.6638 4.80039 12ZM19.2004 18C19.2004 18.6638 18.6641 19.2 18.0004 19.2H3.60039C2.93664 19.2 2.40039 18.6638 2.40039 18C2.40039 17.3363 2.93664 16.8 3.60039 16.8H18.0004C18.6641 16.8 19.2004 17.3363 19.2004 18Z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="currentColor" d="M6.86623 5.15243C6.39748 4.68368 5.63623 4.68368 5.16748 5.15243C4.69873 5.62118 4.69873 6.38243 5.16748 6.85118L10.32 11.9999L5.17123 17.1524C4.70248 17.6212 4.70248 18.3824 5.17123 18.8512C5.63998 19.3199 6.40123 19.3199 6.86998 18.8512L12.0187 13.6987L17.1712 18.8474C17.64 19.3162 18.4012 19.3162 18.87 18.8474C19.3387 18.3787 19.3387 17.6174 18.87 17.1487L13.7175 11.9999L18.8662 6.84743C19.335 6.37868 19.335 5.61743 18.8662 5.14868C18.3975 4.67993 17.6362 4.67993 17.1675 5.14868L12.0187 10.3012L6.86623 5.15243Z"/></symbol>
+  </defs>
+</svg>
+
+<!-- Logo template reused below -->
+<template id="logoTpl"><span class="logo" aria-label="iPay"><img class="lb" src="img/logo/body.svg" alt=""><img class="lr" src="img/logo/horn-r.svg" alt=""><img class="ll" src="img/logo/horn-l.svg" alt=""><img class="lw" src="img/logo/wordmark.svg" alt=""></span></template>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#" data-logo aria-label="iPay home"></a>
+    <div class="acct" id="acct">
+      <button class="acct-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="acctPop">Personal<svg class="caret" viewBox="0 0 320 512" aria-hidden="true"><path fill="currentColor" d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button>
+      <ul class="acct-pop" id="acctPop" role="listbox" aria-label="Account type">
+        <li><a href="#" role="option" aria-selected="true"><span><b>Personal</b><small>For&nbsp;your everyday money</small></span><svg><use href="#i-tick"/></svg></a></li>
+        <li><a href="#business" role="option" aria-selected="false"><span><b>Business</b><small>For&nbsp;companies and&nbsp;teams</small></span><svg><use href="#i-tick"/></svg></a></li>
+      </ul>
+    </div>
+    <nav class="seg" aria-label="Account type">
+      <a href="#" aria-current="page">Personal</a>
+      <a href="#business">Business</a>
+    </nav>
+    <div class="nav-right">
+      <a class="btn btn--sm btn--brand" href="#get">Get&nbsp;the&nbsp;app</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ═════ HERO · motion: words rise + chips pop → photo unveils → slideshow w/ synced app toasts ═════ -->
+<section class="hero" id="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <h1 class="d1">
+        <span class="hero-word">Pay</span>
+        <span class="chip" aria-hidden="true"><svg><use href="#i-card"/></svg></span>
+        <span class="hero-word">send</span>
+        <span class="chip" aria-hidden="true"><svg><use href="#i-send"/></svg></span><br>
+        <span class="hero-word">and</span> <span class="hero-word">get</span> <span class="hero-word">paid</span>
+        <span class="chip" aria-hidden="true"><svg><use href="#i-in"/></svg></span><br>
+        <span class="hero-word">across</span> <span class="hero-word">Asia</span>
+      </h1>
+      <p class="lead">One account and&nbsp;card for&nbsp;the&nbsp;morning market, the&nbsp;weekend trip and&nbsp;the&nbsp;client who&nbsp;pays in&nbsp;dollars. You&nbsp;see every&nbsp;fee before you&nbsp;tap.</p>
+      <div class="hero-ctas">
+        <a class="badge" href="#get" aria-label="Get it on Google Play"><img src="img/stores/google-dark.svg" alt="" width="144" height="48"></a>
+        <a class="badge" href="#get" aria-label="Download on the App Store"><img src="img/stores/apple-dark.svg" alt="" width="144" height="48"></a>
+      </div>
+      <p class="hero-note small">Open an&nbsp;account in&nbsp;about 3&nbsp;minutes, right from&nbsp;your&nbsp;phone</p>
+    </div>
+
+    <div class="stage" id="stage" aria-roledescription="carousel" aria-label="iPay in everyday life">
+      <figure class="slide on" data-pos="market">
+        <img src="img/market-1200.jpg?v=2" srcset="img/market-1200.jpg?v=2 1200w, img/market-2400.jpg?v=2 2400w" sizes="(min-width:1200px) 700px, 100vw" alt="A woman taps her iPay card to pay for fruit at a market stall in Kuala Lumpur">
+      </figure>
+      <figure class="slide" data-pos="airport">
+        <img src="img/airport-1200.jpg" srcset="img/airport-1200.jpg 1200w, img/airport-2400.jpg 2400w" sizes="(min-width:1200px) 700px, 100vw" alt="A couple walks through the airport with carry-on suitcases" loading="lazy">
+      </figure>
+      <figure class="slide" data-pos="night">
+        <img src="img/nightmarket-1200.jpg" srcset="img/nightmarket-1200.jpg 1200w, img/nightmarket-2400.jpg 2400w" sizes="(min-width:1200px) 700px, 100vw" alt="Friends at a Bangkok night market hand a card to the food vendor" loading="lazy">
+      </figure>
+
+      <div class="toast on" aria-live="polite">
+        <div class="toast-ico"><svg><use href="#i-card"/></svg></div>
+        <div><b>Fruit stall, Chow Kit</b><span>Card payment&nbsp;· just now</span></div>
+        <div class="amt num">−RM&nbsp;18.40</div>
+      </div>
+      <div class="toast">
+        <div class="toast-ico"><svg><use href="#i-plane"/></svg></div>
+        <div><b>Trip limits are&nbsp;on</b><span>Bangkok&nbsp;· Fri to&nbsp;Sun</span></div>
+        <div class="amt num">RM&nbsp;1,500/day</div>
+      </div>
+      <div class="toast">
+        <div class="toast-ico"><svg><use href="#i-card"/></svg></div>
+        <div><b>Satay stall, Bangkok</b><span>Rate shown before you&nbsp;paid</span></div>
+        <div class="amt num">−฿640.00</div>
+      </div>
+      <div class="bars" role="tablist" aria-label="Choose photo">
+        <button class="on" role="tab" aria-selected="true" aria-label="Photo 1"><i></i></button>
+        <button role="tab" aria-selected="false" aria-label="Photo 2"><i></i></button>
+        <button role="tab" aria-selected="false" aria-label="Photo 3"><i></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="wrap">
+    <p class="small">Pay wherever you&nbsp;see</p>
+    <div class="marks" aria-label="Accepted: Visa, Mastercard, Apple Pay, Google Pay">
+      <img src="img/pay/visa.svg" alt="Visa" width="66" height="22">
+      <img src="img/pay/mastercard.svg" alt="Mastercard" width="47" height="28">
+      <img src="img/pay/apple-pay.svg" alt="Apple Pay" width="60" height="26">
+      <img src="img/pay/google-pay.svg" alt="Google Pay" width="72" height="28">
+    </div>
+    <p class="small">3D Secure on&nbsp;every&nbsp;card payment</p>
+  </div>
+</div>
+
+<!-- ═════ A DAY WITH iPAY · motion: section pins while the page scrolls; cards travel left with the scroll; the day track lights up stop by stop; toasts slide in on view ═════ -->
+<section class="day" id="day">
+ <div class="day-pin" id="dayPin">
+  <div class="day-sticky" id="daySticky">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="d2">Every <span class="ticker" aria-hidden="true"><span class="ticker-track" data-roll><span>RM</span><span>US$</span><span>฿</span><span>S$</span><span>€</span><span>RM</span></span></span><span class="sr" style="position:absolute;left:-9999px">ringgit</span> of&nbsp;your<br class="br-m"> day, in&nbsp;one app</h2>
+    </div>
+    <ol class="track" id="track" aria-label="Moments of the day"><span class="track-fill" id="trackFill" aria-hidden="true"></span><li style="--t:0.0000"><button type="button" data-stop="0"><i></i><span>08:00</span><small>Checking balances</small></button></li><li style="--t:0.2000"><button type="button" data-stop="1"><i></i><span>11:30</span><small>Getting paid</small></button></li><li style="--t:0.4000"><button type="button" data-stop="2"><i></i><span>14:00</span><small>ATM withdrawal</small></button></li><li style="--t:0.6000"><button type="button" data-stop="3"><i></i><span>16:45</span><small>Paying by&nbsp;phone</small></button></li><li style="--t:0.8000"><button type="button" data-stop="4"><i></i><span>19:30</span><small>Sending to&nbsp;family</small></button></li><li style="--t:1.0000"><button type="button" data-stop="5"><i></i><span>22:30</span><small>Managing your&nbsp;account</small></button></li></ol>
+  </div>
+
+  <div class="rail" id="rail">
+    <article class="moment">
+      <div class="moment-media">
+        <div class="ui ui--lilac">
+          <p class="ui-label">Total balance</p>
+          <p class="ui-total num">$2,480<small>.00</small></p>
+          <div class="wallet">
+            <div class="wrow"><img src="img/flags/usd.svg" alt="" width="40" height="40"><div><b>US dollar</b><span>USD</span></div><div class="r"><b class="num">2,050.00</b><span class="num">$2,050.00</span></div></div>
+            <div class="wrow"><img src="img/flags/eur.svg" alt="" width="40" height="40"><div><b>Euro</b><span>EUR</span></div><div class="r"><b class="num">310.00</b><span class="num">≈&nbsp;$360.00</span></div></div>
+            <div class="wrow"><img src="img/app/icons/usdt-flat.svg" alt="" width="40" height="40"><div><b>Tether</b><span>USDT</span></div><div class="r"><b class="num">70.00</b><span class="num">≈&nbsp;$70.00</span></div></div>
+          </div>
+</div>
+      </div>
+      <p class="moment-time">08:00&nbsp;· Checking balances</p>
+      <h3 class="h3">Every&nbsp;balance on&nbsp;one screen</h3>
+      <p class="body">Dollars, euros and&nbsp;crypto side by&nbsp;side, with&nbsp;the&nbsp;total in&nbsp;the&nbsp;currency you&nbsp;choose.</p>
+    </article>
+
+    <article class="moment">
+      <div class="moment-media">
+        <img src="img/freelancer-1200.jpg" srcset="img/freelancer-1200.jpg 1200w, img/freelancer-2400.jpg 2400w" sizes="400px" alt="A freelance designer laughs on a video call in a Kuala Lumpur cafe" loading="lazy" style="object-position:40% 50%">
+        <div class="toast"><div class="toast-ico"><svg><use href="#i-in"/></svg></div><div><b>Studio North, Sydney</b><span>Invoice #014&nbsp;paid</span></div><div class="amt plus num">+$1,250.00</div></div>
+      </div>
+      <p class="moment-time">11:30&nbsp;· Getting paid</p>
+      <h3 class="h3">The&nbsp;client pays in&nbsp;dollars</h3>
+      <p class="body">Keep the&nbsp;money in&nbsp;dollars, or&nbsp;convert it&nbsp;when you&nbsp;need to&nbsp;spend.</p>
+    </article>
+
+    <article class="moment">
+      <div class="moment-media">
+        <img src="img/atm-1200.jpg?v=2" srcset="img/atm-1200.jpg?v=2 1200w, img/atm-2400.jpg?v=2 2400w" sizes="400px" alt="A man withdraws cash from an ATM on a street in George Town, Penang" loading="lazy" style="object-position:62% 50%">
+        <div class="toast"><div class="toast-ico"><svg><use href="#i-cash"/></svg></div><div><b>ATM, Armenian Street</b><span>Cash withdrawal</span></div><div class="amt num">−RM&nbsp;200.00</div></div>
+      </div>
+      <p class="moment-time">14:00&nbsp;· ATM withdrawal</p>
+      <h3 class="h3">Cash for&nbsp;the&nbsp;hawker stalls</h3>
+      <p class="body">Withdraw at&nbsp;ATMs around the&nbsp;world. It&nbsp;shows up&nbsp;in&nbsp;your&nbsp;history straight away.</p>
+    </article>
+
+    <article class="moment">
+      <div class="moment-media">
+        <img src="img/tea-1200.jpg" srcset="img/tea-1200.jpg 1200w, img/tea-2400.jpg 2400w" sizes="400px" alt="A student pays for bubble tea with her phone" loading="lazy" style="object-position:58% 50%">
+        <div class="toast"><div class="toast-ico"><svg><use href="#i-phone"/></svg></div><div><b>Brown sugar milk tea</b><span>Paid with&nbsp;Google Pay</span></div><div class="amt num">−RM&nbsp;9.90</div></div>
+      </div>
+      <p class="moment-time">16:45&nbsp;· Paying by&nbsp;phone</p>
+      <h3 class="h3">Milk tea between lectures</h3>
+      <p class="body">Add your&nbsp;card to&nbsp;Apple Pay or&nbsp;Google Pay and&nbsp;leave your&nbsp;wallet at&nbsp;home.</p>
+    </article>
+
+    <article class="moment">
+      <div class="moment-media">
+        <img src="img/family-1200.jpg" srcset="img/family-1200.jpg 1200w, img/family-2400.jpg 2400w" sizes="400px" alt="A woman waves to her family on a video call at home" loading="lazy" style="object-position:45% 50%">
+        <div class="toast"><div class="toast-ico"><svg><use href="#i-send"/></svg></div><div><b>Sent to&nbsp;Mum</b><span>Delivered instantly&nbsp;· no&nbsp;fee</span></div><div class="amt num">$150.00</div></div>
+      </div>
+      <p class="moment-time">19:30&nbsp;· Sending to&nbsp;family</p>
+      <h3 class="h3">A&nbsp;little something for&nbsp;Mum</h3>
+      <p class="body">Transfers between iPay users arrive in&nbsp;seconds and&nbsp;cost nothing.</p>
+    </article>
+
+    <article class="moment">
+      <div class="moment-media">
+        <div class="ui ui--night">
+          <div class="plane"><svg><use href="#i-plane"/></svg></div>
+          <p class="ui-label" style="margin-top:24px">Tomorrow 07:15&nbsp;· KUL → BKK</p>
+          <p class="h3">Ready for&nbsp;the&nbsp;trip</p>
+          <div class="rows">
+            <div class="row"><span class="plane"><svg><use href="#i-card"/></svg></span><div><b>Contactless</b><span>Tap to&nbsp;pay abroad</span></div><span class="switch on" data-sw></span></div>
+            <div class="row"><span class="plane"><svg><use href="#i-sliders"/></svg></span><div><b>Daily limit</b><span>RM&nbsp;1,500</span></div><span class="switch on" data-sw></span></div>
+            <div class="row"><span class="plane"><svg><use href="#i-snow"/></svg></span><div><b>Freeze card</b><span>Unfreeze any&nbsp;time</span></div><span class="switch" data-sw></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="moment-time">22:30&nbsp;· Managing your&nbsp;account</p>
+      <h3 class="h3">Set up&nbsp;the&nbsp;card for&nbsp;tomorrow</h3>
+      <p class="body">Set limits, switch payments on&nbsp;and&nbsp;off, or&nbsp;freeze the&nbsp;card in&nbsp;one tap.</p>
+    </article>
+  </div>
+  </div>
+ </div>
+</section>
+
+<!-- ═════ FEES CALCULATOR · mirrors the app Exchange screen ═════ -->
+<section class="sec" id="fees" style="padding-top:0">
+  <div class="wrap">
+    <div class="panel">
+      <div class="calc-grid">
+        <div>
+          <h2 class="d2">See <span class="chip" aria-hidden="true"><svg><use href="#i-eye"/></svg></span> the&nbsp;fee before you&nbsp;pay</h2>
+          <p class="lead">Paying in&nbsp;baht, rupiah or&nbsp;yen? Check what it&nbsp;costs from&nbsp;your&nbsp;dollar or&nbsp;euro balance. The&nbsp;app shows the&nbsp;same numbers before you&nbsp;confirm.</p>
+          <ul class="ticks">
+            <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-rate"/></svg></span><div><b>No&nbsp;markup on&nbsp;card payments</b><span class="body">You&nbsp;get&nbsp;the&nbsp;exchange rate you&nbsp;see.</span></div></li>
+            <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-receipt"/></svg></span><div><b>Fee shown upfront</b><span class="body">Not&nbsp;afterwards, on&nbsp;your&nbsp;statement.</span></div></li>
+            <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-gift"/></svg></span><div><b>Free between iPay users</b><span class="body">Send to&nbsp;friends and&nbsp;family on&nbsp;iPay at&nbsp;no&nbsp;cost.</span></div></li>
+          </ul>
+        </div>
+
+        <form class="xw" id="calcB" onsubmit="return false" aria-label="Payment cost calculator">
+          <div class="xw-pair">
+            <div class="xf" data-side="pay">
+              <div class="xf-head"><b>You&nbsp;pay</b><span>Card payment abroad</span></div>
+              <div class="xf-row">
+                <div class="dd" data-dd="pay"><button type="button" class="xpick" aria-haspopup="listbox" aria-expanded="false" aria-label="Payment currency"><img class="flag" data-coin src="img/flags/myr.svg" alt="" width="32" height="32"><span data-code></span><svg class="ch" viewBox="0 0 16 16"><path fill="#0A0A0A" d="M7.435 11.765C7.7475 12.0775 8.255 12.0775 8.5675 11.765L13.3675 6.965C13.68 6.6525 13.68 6.145 13.3675 5.8325C13.055 5.52 12.5475 5.52 12.235 5.8325L8 10.0675L3.765 5.835C3.4525 5.5225 2.945 5.5225 2.6325 5.835C2.32 6.1475 2.32 6.655 2.6325 6.9675L7.4325 11.7675L7.435 11.765Z"/></svg></button><div class="dd-pop"><ul class="dd-menu" role="listbox" aria-label="Payment currency" tabindex="-1"></ul></div></div>
+                <input class="xamt" inputmode="decimal" value="120.00" aria-label="Amount you pay" autocomplete="off">
+              </div>
+            </div>
+            <button type="button" class="xswap" aria-label="Swap amounts"><svg viewBox="0 0 20 20"><path fill="#0A0A0A" d="M14.7063 17.7062L17.7062 14.7063C17.9937 14.4188 18.0781 13.9906 17.9219 13.6156C17.7656 13.2406 17.4031 13 17 13H15V3C15 2.44687 14.5531 2 14 2C13.4469 2 13 2.44687 13 3V13H11C10.5969 13 10.2313 13.2437 10.075 13.6187C9.91875 13.9937 10.0063 14.4219 10.2906 14.7094L13.2906 17.7094C13.6813 18.1 14.3156 18.1 14.7063 17.7094V17.7062ZM6.70625 2.29375C6.31563 1.90313 5.68125 1.90313 5.29063 2.29375L2.29063 5.29375C2.00313 5.58125 1.91875 6.00938 2.075 6.38438C2.23125 6.75938 2.59688 7 3 7H5V17C5 17.5531 5.44687 18 6 18C6.55313 18 7 17.5531 7 17V7H9C9.40312 7 9.76875 6.75625 9.925 6.38125C10.0813 6.00625 9.99375 5.57813 9.70938 5.29063L6.70937 2.29063L6.70625 2.29375Z"/></svg></button>
+            <div class="xf" data-side="bal">
+              <div class="xf-head"><b>From&nbsp;your&nbsp;balance</b><span><span data-avail>2,050.00&nbsp;USD</span> available</span></div>
+              <div class="xf-row">
+                <div class="dd" data-dd="bal"><button type="button" class="xpick" aria-haspopup="listbox" aria-expanded="false" aria-label="Balance currency"><img class="flag" data-coin src="img/flags/myr.svg" alt="" width="32" height="32"><span data-code></span><svg class="ch" viewBox="0 0 16 16"><path fill="#0A0A0A" d="M7.435 11.765C7.7475 12.0775 8.255 12.0775 8.5675 11.765L13.3675 6.965C13.68 6.6525 13.68 6.145 13.3675 5.8325C13.055 5.52 12.5475 5.52 12.235 5.8325L8 10.0675L3.765 5.835C3.4525 5.5225 2.945 5.5225 2.6325 5.835C2.32 6.1475 2.32 6.655 2.6325 6.9675L7.4325 11.7675L7.435 11.765Z"/></svg></button><div class="dd-pop"><ul class="dd-menu" role="listbox" aria-label="Balance currency" tabindex="-1"></ul></div></div>
+                <input class="xamt" inputmode="decimal" value="" aria-label="Amount from your balance" autocomplete="off">
+              </div>
+            </div>
+          </div>
+          <ul class="xfees">
+            <li><span>Exchange rate</span><b class="num" data-rate>—</b></li>
+            <li class="zero"><span>Our&nbsp;markup</span><b class="num">0.00</b></li>
+            <li><span>Total from&nbsp;balance</span><b class="num" data-total>—</b></li>
+          </ul>
+          <a class="btn btn--brand" href="#get">Try it&nbsp;in&nbsp;the&nbsp;app</a>
+          <p class="cap">Example rates for&nbsp;illustration. You’ll see the&nbsp;live rate in&nbsp;the&nbsp;app before you&nbsp;pay.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ WHO IT'S FOR · bento · motion: plaque tilts in; incoming payments stack up; dot travels on the send line ═════ -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head bento-head" data-in>
+      <h2 class="d2">Made for <span class="ticker" aria-hidden="true"><span class="ticker-track" data-roll><span>freelancers</span><span>travellers</span><span>families</span><span>students</span><span>freelancers</span></span></span><span style="position:absolute;left:-9999px">people</span><br>living between currencies</h2>
+      <p class="lead">Whether you&nbsp;earn abroad, travel on&nbsp;weekends or&nbsp;look after family back home.</p>
+    </div>
+    <div class="bento">
+      <article class="tile t-a" data-in>
+        <p class="who">Freelancers and&nbsp;remote workers</p>
+        <h3 class="h3">Get&nbsp;paid by&nbsp;clients anywhere, in&nbsp;dollars or&nbsp;euros</h3>
+        <p class="body" style="max-width:440px">Share your&nbsp;account details, get&nbsp;paid, then hold, convert or&nbsp;spend the&nbsp;money with&nbsp;your&nbsp;card.</p>
+        <div class="month"><span class="small">Received this month</span><b class="num">$2,190<small>.00</small></b><span class="month-bar"><i style="--w:57%"></i><i style="--w:29%"></i><i style="--w:14%"></i></span></div>
+        <div class="inbox">
+          <div class="row"><span class="ini ini--logo lg-sn">studio<br>north</span><div><b>Studio North</b><span>Sydney&nbsp;· Today, 11:30</span></div><div class="r"><b class="amt plus num">+$1,250.00</b></div></div>
+          <div class="row"><span class="ini ini--logo lg-ks">kanso</span><div><b>Kanso GmbH</b><span>Berlin&nbsp;· Mon</span></div><div class="r"><b class="amt plus num">+€640.00</b></div></div>
+          <div class="row"><span class="ini ini--logo lg-lw">lw/</span><div><b>Lumen Works</b><span>Singapore&nbsp;· Last week</span></div><div class="r"><b class="amt plus num">+$300.00</b></div></div>
+        </div>
+      </article>
+      <article class="tile t-b">
+        <p class="who">Travellers</p>
+        <h3 class="h3">One card in&nbsp;180+&nbsp;countries</h3>
+        <p class="body">Pay in&nbsp;the&nbsp;local money at&nbsp;the&nbsp;rate you&nbsp;saw in&nbsp;the&nbsp;app.</p>
+        <div class="coins" aria-label="Currencies you can pay in"><span><img src="img/flags/myr.svg" alt="" width="24" height="24">MYR</span><span><img src="img/flags/sgd.svg" alt="" width="24" height="24">SGD</span><span><img src="img/flags/thb.svg" alt="" width="24" height="24">THB</span><span><img src="img/flags/idr.svg" alt="" width="24" height="24">IDR</span><span><img src="img/flags/php.svg" alt="" width="24" height="24">PHP</span><span><img src="img/flags/vnd.svg" alt="" width="24" height="24">VND</span><span><img src="img/flags/jpy.svg" alt="" width="24" height="24">JPY</span><span><img src="img/flags/krw.svg" alt="" width="24" height="24">KRW</span><span><img src="img/flags/hkd.svg" alt="" width="24" height="24">HKD</span></div>
+      </article>
+      <article class="tile t-c">
+        <p class="who">Families</p>
+        <h3 class="h3">Support family, wherever they are</h3>
+        <p class="body">Money reaches family on&nbsp;iPay in&nbsp;seconds, with&nbsp;no&nbsp;transfer fee.</p>
+        <div class="send" aria-hidden="true"><img class="ini" src="img/avatars/a.jpg" alt=""><div class="send-line"></div><img class="ini" src="img/avatars/m.jpg" alt=""><div class="send-amt num">$150.00<span>Delivered</span></div></div>
+      </article>
+      <article class="tile t-d">
+        <p class="who">Students</p>
+        <h3 class="h3">A&nbsp;virtual card before class starts</h3>
+        <div class="timer"><b>3</b><span>minutes to&nbsp;open,<br>no&nbsp;branch visit</span></div>
+      </article>
+      <article class="tile t-e" id="business">
+        <p class="who">Business</p>
+        <h3 class="h3">Run a&nbsp;small business or&nbsp;a&nbsp;remote team?</h3>
+        <p class="body">Business accounts with&nbsp;cards for&nbsp;your&nbsp;team, invoices from&nbsp;abroad and&nbsp;spending you&nbsp;can&nbsp;see in&nbsp;one place.</p>
+        <a class="btn" href="#">Explore iPay Business</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ CARD · motion: mini card tilts inline; three cards fan out; fan follows the pointer ═════ -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap cards-grid">
+    <div class="fan" id="fan" aria-hidden="true">
+      <div class="fan-inner" id="fanInner">
+        <div class="pcard pc1"><img src="img/cards/ipay-card-black.png" alt="iPay Visa Infinite card, black" width="440" height="278"></div>
+        <div class="pcard pc2"><img src="img/cards/ipay-card-white.png" alt="iPay Visa Infinite card, white" width="440" height="278"></div>
+        <div class="pcard pc3"><img src="img/cards/ipay-card-halftone.png" alt="iPay Visa Platinum card" width="440" height="278"></div>
+      </div>
+    </div>
+    <div data-in>
+      <h2 class="d2">Create <span class="chip" aria-hidden="true"><svg><use href="#i-card-details"/></svg></span> a&nbsp;card for&nbsp;every&nbsp;part of&nbsp;your&nbsp;life</h2>
+      <p class="lead">Make one for&nbsp;groceries, one for&nbsp;trips, one for&nbsp;subscriptions. Each&nbsp;with&nbsp;its&nbsp;own limits.</p>
+      <ul class="ticks feats">
+        <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-clock"/></svg></span><div><b>Virtual card in&nbsp;minutes</b><span class="body">Start paying online and&nbsp;in&nbsp;stores the&nbsp;moment you’re verified.</span></div></li>
+        <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-card"/></svg></span><div><b>Physical card by&nbsp;post</b><span class="body">For&nbsp;ATMs and&nbsp;shops that still want to&nbsp;see plastic.</span></div></li>
+        <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-phone"/></svg></span><div><b>Apple Pay and&nbsp;Google Pay</b><span class="body">Add the&nbsp;card to&nbsp;your&nbsp;phone or&nbsp;watch in&nbsp;a&nbsp;few taps.</span></div></li>
+        <li><span class="tick-ico" aria-hidden="true"><svg><use href="#i-snow"/></svg></span><div><b>Freeze in&nbsp;one tap</b><span class="body">Lost your&nbsp;card? Freeze it, then unfreeze it&nbsp;when it&nbsp;turns up.</span></div></li>
+      </ul>
+      <a class="btn btn--brand" href="#get">Get&nbsp;your&nbsp;card</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ SECURITY (dark) · motion: lock chip pops; support typing dots ═════ -->
+<section class="sec dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="d2"><span style="white-space:nowrap">Stay <span class="chip" aria-hidden="true"><svg><use href="#i-lock"/></svg></span> safe</span> at&nbsp;every&nbsp;step</h2>
+      <p class="lead">From&nbsp;sign-in to&nbsp;every&nbsp;payment, you&nbsp;decide how&nbsp;you’re protected and&nbsp;get&nbsp;notified about everything.</p>
+    </div>
+    <div class="safe">
+      <div class="glow"><img class="gani" src="img/anim/security.svg" alt="" width="80" height="80"><b>3D Secure payments</b><p>Online card payments are&nbsp;confirmed in&nbsp;the&nbsp;app, so&nbsp;nobody can&nbsp;pay with&nbsp;your&nbsp;card details.</p></div>
+      <div class="glow"><img class="gani" src="img/anim/faceid.svg" alt="" width="80" height="80"><b>Passkeys and&nbsp;Face ID</b><p>Sign in&nbsp;with&nbsp;biometrics, passkeys, an&nbsp;authenticator app or&nbsp;a&nbsp;one-time code.</p></div>
+      <div class="glow"><img class="gani" src="img/anim/transfer.svg" alt="" width="80" height="80"><b>Every&nbsp;payment, live</b><p>A&nbsp;notification the&nbsp;moment money moves, and&nbsp;you&nbsp;can&nbsp;freeze the&nbsp;card from&nbsp;the&nbsp;same screen.</p></div>
+      <div class="glow">
+        <div class="bubble">
+          <div>Hi, I’m Aisyah from&nbsp;iPay. How&nbsp;can&nbsp;I&nbsp;help?</div>
+          <div class="me">Can&nbsp;I&nbsp;use my&nbsp;card in&nbsp;Bangkok?</div>
+          <div class="dots"><i></i><i></i><i></i></div>
+        </div>
+        <b>People who&nbsp;answer</b><p>Real support in&nbsp;the&nbsp;app, any&nbsp;time of&nbsp;day.</p>
+      </div>
+    </div>
+    <div class="legal-line">
+      <svg><use href="#i-check"/></svg>
+      <p class="body">iPay is&nbsp;a&nbsp;licensed fintech, not&nbsp;a&nbsp;bank. Cards, wallets and&nbsp;e-money are&nbsp;provided through licensed partners in&nbsp;the&nbsp;European Economic Area, and&nbsp;client funds are&nbsp;safeguarded.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ REFERRAL · motion: % counts up ═════ -->
+<section class="sec">
+  <div class="wrap ref-grid">
+    <div data-in>
+      <h2 class="d2">Invite friends. Earn up&nbsp;to <span class="ticker"><span class="ticker-track"><span id="pct" class="num">0.3%</span></span></span> of&nbsp;what they spend</h2>
+      <p class="lead">Your&nbsp;friends get&nbsp;an&nbsp;account that saves them money abroad. You&nbsp;get&nbsp;a&nbsp;share of&nbsp;their card and&nbsp;transfer volume, every&nbsp;month.</p>
+    </div>
+    <ol class="steps">
+      <li><div><b>Share your&nbsp;link</b><p class="body">Find it&nbsp;in&nbsp;the&nbsp;app under Rewards and&nbsp;send it&nbsp;in&nbsp;any&nbsp;chat.</p></div></li>
+      <li><div><b>Your&nbsp;friend joins</b><p class="body">They open an&nbsp;account and&nbsp;verify their ID in&nbsp;a&nbsp;few minutes.</p></div></li>
+      <li><div><b>You&nbsp;earn as&nbsp;they spend</b><p class="body">Up&nbsp;to&nbsp;0.3%&nbsp;of&nbsp;their transaction volume goes to&nbsp;your&nbsp;balance.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═════ FAQ · motion: answer height animates open ═════ -->
+<section class="sec" id="faq" style="padding-top:0">
+  <div class="wrap faq-grid">
+    <div>
+      <h2 class="d2">Questions, answered</h2>
+      <p class="lead">Can’t find yours? <a href="#">Chat with&nbsp;us in&nbsp;the&nbsp;app</a> and&nbsp;a&nbsp;real person will reply.</p>
+    </div>
+    <div>
+      <details class="qa" name="faq"><summary>Which countries can&nbsp;I&nbsp;use iPay in?<i aria-hidden="true"><svg class="pl"><use href="#i-plus"/></svg><svg class="mn"><use href="#i-minus"/></svg></i></summary><div class="qa-body"><div><p>Pay with&nbsp;your&nbsp;iPay card in&nbsp;shops, online and&nbsp;at&nbsp;ATMs in&nbsp;Malaysia and&nbsp;across Asia&nbsp;— Singapore, Thailand, Indonesia, Vietnam, the&nbsp;Philippines, Japan, South Korea and&nbsp;Hong Kong&nbsp;— and&nbsp;in&nbsp;180+&nbsp;countries worldwide. Apple Pay and&nbsp;Google Pay work too.</p></div></div></details>
+      <details class="qa" name="faq"><summary>Is&nbsp;iPay a&nbsp;bank?<i aria-hidden="true"><svg class="pl"><use href="#i-plus"/></svg><svg class="mn"><use href="#i-minus"/></svg></i></summary><div class="qa-body"><div><p>No. iPay is&nbsp;a&nbsp;licensed fintech. Cards, wallets and&nbsp;e-money are&nbsp;provided through licensed partners in&nbsp;the&nbsp;European Economic Area, and&nbsp;your&nbsp;funds are&nbsp;safeguarded.</p></div></div></details>
+      <details class="qa" name="faq"><summary>Which currencies can&nbsp;I&nbsp;hold?<i aria-hidden="true"><svg class="pl"><use href="#i-plus"/></svg><svg class="mn"><use href="#i-minus"/></svg></i></summary><div class="qa-body"><div><p>You&nbsp;can&nbsp;hold US dollars, euros and&nbsp;popular crypto. When you&nbsp;pay in&nbsp;another currency, like ringgit or&nbsp;baht, it’s converted at&nbsp;the&nbsp;rate shown in&nbsp;the&nbsp;app.</p></div></div></details>
+      <details class="qa" name="faq"><summary>How&nbsp;do&nbsp;I&nbsp;open an&nbsp;account?<i aria-hidden="true"><svg class="pl"><use href="#i-plus"/></svg><svg class="mn"><use href="#i-minus"/></svg></i></summary><div class="qa-body"><div><p>Download the&nbsp;app, sign up&nbsp;with&nbsp;your&nbsp;email and&nbsp;verify your&nbsp;identity with&nbsp;an&nbsp;ID document and&nbsp;a&nbsp;selfie. It&nbsp;usually takes about 3&nbsp;minutes.</p></div></div></details>
+      <details class="qa" name="faq"><summary>Are&nbsp;there limits?<i aria-hidden="true"><svg class="pl"><use href="#i-plus"/></svg><svg class="mn"><use href="#i-minus"/></svg></i></summary><div class="qa-body"><div><p>You&nbsp;can&nbsp;send up&nbsp;to&nbsp;€5,000&nbsp;a&nbsp;day and&nbsp;€100,000&nbsp;a&nbsp;month. Set lower limits for&nbsp;each&nbsp;card in&nbsp;the&nbsp;app.</p></div></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ CTA · night Grab ride background ═════ -->
+<section class="sec" id="get" style="padding-top:0;padding-bottom:64px">
+  <div class="wrap">
+    <div class="cta cta--ride" data-in>
+      <div class="cta-copy">
+        <h2 class="d1">Open&nbsp;<span class="chip" aria-hidden="true"><svg><use href="#i-bolt"/></svg></span> your&nbsp;account in&nbsp;3&nbsp;minutes</h2>
+        <p class="lead">Download iPay, verify your&nbsp;ID and&nbsp;your&nbsp;virtual card is&nbsp;ready to&nbsp;use.</p>
+        <div class="cta-row">
+            <a class="badge" href="#" aria-label="Get it on Google Play"><img src="img/stores/google-light.svg?v=2" alt="" width="144" height="48"></a>
+            <a class="badge" href="#" aria-label="Download on the App Store"><img src="img/stores/apple-light.svg?v=2" alt="" width="144" height="48"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a href="#" data-logo aria-label="iPay home"></a>
+        <p class="small">One account and&nbsp;card for&nbsp;life between currencies. Spend, send and&nbsp;get&nbsp;paid from&nbsp;your&nbsp;phone.</p>
+      </div>
+      <div><h3>Personal</h3><ul><li><a href="#">Cards</a></li><li><a href="#fees">Fees</a></li><li><a href="#">Rewards</a></li><li><a href="#">Security</a></li></ul></div>
+      <div><h3>Business</h3><ul><li><a href="#">Business account</a></li><li><a href="#">Team cards</a></li><li><a href="#">Get&nbsp;paid from&nbsp;abroad</a></li></ul></div>
+      <div><h3>Help</h3><ul><li><a href="#faq">FAQ</a></li><li><a href="#">Contact support</a></li><li><a href="#">Terms of&nbsp;use</a></li><li><a href="#">Privacy policy</a></li></ul></div>
+    </div>
+    <div class="foot-legal">
+      <p class="cap">iPay is&nbsp;a&nbsp;technology company, not&nbsp;a&nbsp;bank. E-money, wallet and&nbsp;card services are&nbsp;provided by&nbsp;licensed partners in&nbsp;the&nbsp;European Economic Area. Exchange rates on&nbsp;this page are&nbsp;examples. Card issued by&nbsp;a&nbsp;licensed partner under licence from&nbsp;the&nbsp;card scheme.</p>
+      <p class="cap">©&nbsp;2026&nbsp;iPay</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+
+/* ── Typography rule (applies to any text on the page, incl. future edits):
+   short words (articles, prepositions, conjunctions, pronouns) stick to the next word,
+   numbers stick to their unit, currency codes/symbols stick to the amount,
+   "·", "—", "–", "=" stick to the previous word. Uses U+00A0. ── */
+const NB = ' ';
+const SHORT = 'a|an|the|in|on|at|to|of|or|and|for|by|with|from|as|is|no|up|per|via|I|it|its|my|your|our|we|be|if|so|any|all|each|every|than|into|but|not|nor|off|out|how|who|can|are|you|do|get';
+const CUR = 'RM|US\\$|S\\$|HK\\$|A\\$|USD|EUR|THB|MYR|SGD|IDR|PHP|VND|JPY|USDT|Rp|฿|€|\\$';
+const RX = [
+  [new RegExp(`(^|[^\\w$-])(${SHORT}) +(?=\\S)`, 'gi'), (m, a, w) => a + w + NB],
+  [/(\d[\d,.]*[%+]?) +(?=[A-Za-z€$฿₱₫¥₩=])/g, (m, n) => n + NB],
+  [new RegExp(`(^|[^\\w])(${CUR}) +(?=[−\\-\\d])`, 'g'), (m, a, c) => a + c + NB],
+  [/ +([·—–=])/g, (m, d) => NB + d]
+];
+function nb(t){ for (let k = 0; k < 2; k++) RX.forEach(([r, f]) => { t = t.replace(r, f); }); return t; }
+(function typeset(root){
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
+    n.parentElement.closest('script,style,svg,textarea,input,code') || !n.nodeValue.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => { const v = nb(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; });
+})(document.body);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* logos */
+const tpl = document.getElementById('logoTpl');
+document.querySelectorAll('[data-logo]').forEach(el => el.append(tpl.content.cloneNode(true)));
+document.querySelectorAll('[data-logo-inv]').forEach(el => { const n = tpl.content.cloneNode(true); n.firstElementChild.classList.add('logo--inv'); el.replaceWith(n); });
+
+/* nav shadow */
+const nav = document.getElementById('nav');
+addEventListener('scroll', () => nav.classList.toggle('is-scrolled', scrollY > 8), {passive:true});
+/* phone account dropdown: Personal / Business */
+(() => {
+  const box = document.getElementById('acct'); if (!box) return;
+  const btn = box.querySelector('.acct-btn');
+  const set = open => { box.classList.toggle('open', open); btn.setAttribute('aria-expanded', open); };
+  btn.addEventListener('click', e => { e.stopPropagation(); set(!box.classList.contains('open')); });
+  box.querySelectorAll('.acct-pop a').forEach(a => a.addEventListener('click', () => set(false)));
+  document.addEventListener('click', e => { if (!box.contains(e.target)) set(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+})();
+
+/* ── Hero: orchestrated load ── */
+const hero = document.getElementById('hero');
+let d = 0;
+hero.querySelectorAll('.hero-word, .hero .chip').forEach(el => {
+  el.style.animationDelay = (el.classList.contains('chip') ? d + .1 : d) + 's';
+  d += .07;
+});
+requestAnimationFrame(() => hero.classList.add('play'));
+
+/* ── Hero slideshow with synced toasts ── */
+(() => {
+  const stage = document.getElementById('stage');
+  const slides = [...stage.querySelectorAll('.slide')];
+  const toasts = [...stage.querySelectorAll('.toast')];
+  const bars = [...stage.querySelectorAll('.bars button')];
+  const DUR = 6000; let i = 0, t;
+  stage.style.setProperty('--dur', DUR + 'ms');
+  function go(n){
+    i = (n + slides.length) % slides.length;
+    slides.forEach((s,k) => s.classList.toggle('on', k === i));
+    toasts.forEach((s,k) => s.classList.toggle('on', k === i));
+    bars.forEach((b,k) => { b.classList.toggle('on', k === i); b.classList.toggle('done', k < i); b.setAttribute('aria-selected', k === i); });
+    // restart progress animation
+    const bar = bars[i].querySelector('i'); bar.style.display='none'; bar.offsetHeight; bar.style.display='';
+    clearTimeout(t); if(!reduce) t = setTimeout(() => go(i + 1), DUR);
+  }
+  bars.forEach((b,k) => b.addEventListener('click', () => go(k)));
+  go(0);
+})();
+
+/* ── Rolling plaques (currencies, audiences): width follows the word, equal side padding ── */
+document.querySelectorAll('[data-roll]').forEach((tr, idx) => {
+  const box = tr.parentElement, items = [...tr.children], n = items.length; let k = 0;
+  const fit = (i, animate = true) => {
+    const pad = parseFloat(getComputedStyle(box).paddingLeft) * 2;
+    if (!animate) box.style.transition = 'none';
+    box.style.width = (items[i].getBoundingClientRect().width / rectScale(items[i]) + pad) + 'px';
+    if (!animate) { box.offsetWidth; box.style.transition = ''; }
+  };
+  const refit = () => fit(k % n, false);
+  refit(); document.fonts && document.fonts.ready.then(refit); addEventListener('resize', refit);
+  if (reduce) return;
+  setTimeout(() => setInterval(() => {
+    k++; tr.style.transition = ''; tr.style.transform = `translateY(${-k}em)`; fit(k);
+    if (k === n - 1) setTimeout(() => { tr.style.transition = 'none'; k = 0; tr.style.transform = 'translateY(0)'; }, 650);
+  }, idx ? 2200 : 1800), idx * 400);
+});
+
+/* ── Day: pinned horizontal scroll driven by normal vertical scrolling ── */
+(() => {
+  const sec = document.getElementById('day'), pin = document.getElementById('dayPin'), sticky = document.getElementById('daySticky');
+  const rail = document.getElementById('rail'), fill = document.getElementById('trackFill');
+  const stops = [...document.querySelectorAll('#track li')], n = stops.length, NAV = 80, navEl = document.getElementById('nav');
+  let travel = 0, free = false, stickTop = NAV;
+  function layout(){
+    // pin (vertical scroll drives the cards sideways) whenever the block fits under the nav — phones included;
+    // only when it doesn't fit, fall back to a plain horizontal swipe
+    sec.classList.remove('day--free');
+    rail.style.transform = '';
+    const vh = innerHeight / pageZoom(), navH = navEl.offsetHeight;   // CSS px
+    free = sticky.offsetHeight + navH > vh;
+    sec.classList.toggle('day--free', free);
+    // horizontal travel = until the last card meets the right gutter (scrollWidth ignores the grid's right padding)
+    const last = rail.lastElementChild, padR = parseFloat(getComputedStyle(rail).paddingRight) || 0;
+    travel = Math.max(0, last.offsetLeft + last.offsetWidth + padR - rail.clientWidth);
+    const top = navH + Math.max(0, (vh - navH - sticky.offsetHeight) / 2);
+    sticky.style.top = top + 'px'; stickTop = top;
+    pin.style.height = free ? '' : (sticky.offsetHeight + travel) + 'px';
+    upd();
+  }
+  function progress(){
+    if (free) return travel ? rail.scrollLeft / travel : 0;
+    const g = rectScale(pin), top = pin.getBoundingClientRect().top / g;
+    return Math.min(1, Math.max(0, (stickTop - top) / (pin.offsetHeight - sticky.offsetHeight || 1)));
+  }
+  function upd(){
+    const p = progress();
+    if (!free) rail.style.transform = `translate3d(${-p * travel}px,0,0)`;
+    fill.style.width = `calc((100% - 16px) * ${p})`;
+    const x = p * (n - 1), k = Math.floor(x + .12);
+    // every stop the line has reached is filled; the label of the last reached stop is dark
+    stops.forEach((li, i) => { li.classList.toggle('done', i <= x + .12); li.classList.toggle('is-now', i === k); });
+  }
+  stops.forEach((li, i) => li.querySelector('button').addEventListener('click', () => {
+    const t = i / (n - 1);
+    if (free) rail.scrollTo({left: t * travel, behavior: 'smooth'});
+    else { const g = rectScale(pin); scrollTo({top: scrollY + pin.getBoundingClientRect().top - (stickTop - t * (pin.offsetHeight - sticky.offsetHeight)) * g, behavior: 'smooth'}); }
+  }));
+  addEventListener('scroll', upd, {passive:true});
+  rail.addEventListener('scroll', upd, {passive:true});
+  addEventListener('resize', layout);
+  addEventListener('load', layout);
+  layout();
+})();
+
+/* ── In-view triggers: replay every time an element scrolls back into view ── */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  const el = e.target;
+  if (e.intersectionRatio >= .3) {
+    if (!el.classList.contains('in')) { el.classList.add('in'); if (el.id === 'pct') countUp(el); }
+  } else if (!e.isIntersecting) el.classList.remove('in');   // fully out of view → reset for next time
+}), {threshold:[0, .3]});
+document.querySelectorAll('[data-in], .moment, #fan, #pct, .cta').forEach(el => io.observe(el));
+// animated SVG icons: restart their CSS animation each time the card scrolls back in
+const gio = new IntersectionObserver(es => es.forEach(e => {
+  const img = e.target;
+  if (e.intersectionRatio >= .5 && !img.dataset.on) { img.dataset.on = 1; img.src = img.src.split('?')[0] + '?t=' + Date.now(); }
+  else if (!e.isIntersecting) delete img.dataset.on;
+}), {threshold:[0, .5]});
+document.querySelectorAll('.gani').forEach(el => gio.observe(el));
+
+/* trip switches flick on each time the card scrolls in, reset when it leaves */
+const sws = [...document.querySelectorAll('[data-sw]')].filter(sw => sw.classList.contains('on'));
+if (!reduce) sws.forEach(sw => { sw.classList.remove('on'); sw.dataset.on = 1; });
+let swTimers = [];
+new IntersectionObserver(es => es.forEach(e => {
+  swTimers.forEach(clearTimeout); swTimers = [];
+  if (e.intersectionRatio >= .5) sws.forEach((sw, k) => swTimers.push(setTimeout(() => sw.classList.add('on'), 400 + k * 250)));
+  else if (!e.isIntersecting && !reduce) sws.forEach(sw => sw.classList.remove('on'));
+}), {threshold:[0, .5]}).observe(document.querySelector('.ui--night'));
+
+/* hero intro replays when you scroll back up to the top */
+new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) hero.classList.remove('play');
+  else if (!hero.classList.contains('play')) { hero.offsetWidth; hero.classList.add('play'); }
+}), {threshold:0}).observe(hero);
+
+/* FAQ: one answer open at a time (native via name="faq"; fallback for older browsers) */
+document.querySelectorAll('.qa').forEach(d => d.addEventListener('toggle', () => {
+  if (d.open) document.querySelectorAll('.qa[open]').forEach(o => { if (o !== d) o.open = false; });
+}));
+
+/* referral count-up */
+function countUp(el){
+  if (reduce) return;
+  const t0 = performance.now(), D = 1200;
+  (function f(t){ const p = Math.min(1, (t - t0) / D), v = (1 - Math.pow(1 - p, 3)) * .3; el.textContent = v.toFixed(1 + (p < 1 ? 1 : 0)).replace(/0$/, '') + '%'; if (p < 1) requestAnimationFrame(f); else el.textContent = '0.3%'; })(t0);
+}
+
+/* ── Calculator: two linked fields, either one editable, swap flips order; DS dropdowns ── */
+(() => {
+  const f = document.getElementById('calcB'); if (!f) return;
+  const R = {MYR:4.20, SGD:1.29, THB:33.0, IDR:16300, PHP:57.5, VND:25400, JPY:148, USD:1, EUR:0.86};
+  const META = {
+    MYR:'Malaysian ringgit', SGD:'Singapore dollar', THB:'Thai baht', IDR:'Indonesian rupiah',
+    PHP:'Philippine peso', VND:'Vietnamese dong', JPY:'Japanese yen', USD:'US dollar', EUR:'Euro'
+  }; // flags: DS "Flag" component set (Figma 909:3073) → img/flags/<code>.svg
+  const LISTS = {pay:['MYR','SGD','THB','IDR','PHP','VND','JPY'], bal:['USD','EUR']};
+  const AVAIL = {USD:'2,050.00\u00a0USD', EUR:'310.00\u00a0EUR'};
+  const state = {pay:'MYR', bal:'USD'};
+  const pair = f.querySelector('.xw-pair');
+  const field = n => f.querySelector(`.xf[data-side="${n}"]`);
+  const pay = field('pay'), bal = field('bal');
+  const inp = el => el.querySelector('.xamt');
+  const cur = el => state[el.dataset.side];
+  const num = v => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+  const dec = c => (c === 'IDR' || c === 'VND' || c === 'JPY') ? 0 : 2;
+  const fmt = (n, c) => n.toLocaleString('en-US', {minimumFractionDigits:dec(c), maximumFractionDigits:dec(c)});
+  const flag = c => `img/flags/${c.toLowerCase()}.svg`;
+  const coinHTML = c => `<img class="flag" src="${flag(c)}" alt="" width="40" height="40">`;
+  let driver = pay;
+
+  function paint(el){
+    const c = cur(el);
+    el.querySelector('[data-coin]').src = flag(c);
+    el.querySelector('[data-code]').textContent = c;
+    el.querySelectorAll('.dd-opt').forEach(o => o.setAttribute('aria-selected', o.dataset.v === c));
+  }
+  function calc(){
+    const pc = state.pay, bc = state.bal, rate = R[pc] / R[bc];
+    if (driver === pay) inp(bal).value = fmt(num(inp(pay).value) / rate, bc);
+    else inp(pay).value = fmt(num(inp(bal).value) * rate, pc);
+    f.querySelector('[data-rate]').textContent = `1\u00a0${bc}\u00a0=\u00a0${rate.toLocaleString('en-US', {maximumFractionDigits: rate > 100 ? 0 : rate > 10 ? 2 : 4, minimumFractionDigits: rate > 100 ? 0 : 2})}\u00a0${pc}`;
+    f.querySelector('[data-total]').textContent = `${fmt(num(inp(bal).value), bc)}\u00a0${bc}`;
+    f.querySelector('[data-avail]').textContent = AVAIL[bc];
+    const other = driver === pay ? inp(bal) : inp(pay);
+    other.classList.remove('flash'); other.offsetWidth; other.classList.add('flash');
+  }
+
+  /* dropdown (DS Action Menu) with keyboard support */
+  const dds = [...f.querySelectorAll('.dd')];
+  const closeAll = except => dds.forEach(d => { if (d !== except) { d.classList.remove('open'); d.querySelector('.xpick').setAttribute('aria-expanded', 'false'); } });
+  dds.forEach(dd => {
+    const side = dd.dataset.dd, el = field(side), btn = dd.querySelector('.xpick'), menu = dd.querySelector('.dd-menu');
+    menu.innerHTML = LISTS[side].map(c => `<li class="dd-opt" role="option" data-v="${c}" aria-selected="false">${coinHTML(c)}<span class="t"><b>${c}</b><small>${META[c]}</small></span><svg><use href="#i-tick"/></svg></li>`).join('');
+    const opts = () => [...menu.querySelectorAll('.dd-opt')];
+    let hl = -1;
+    const setHl = k => { const o = opts(); hl = (k + o.length) % o.length; o.forEach((x, n) => x.classList.toggle('hl', n === hl)); o[hl].scrollIntoView({block:'nearest'}); };
+    const open = () => { closeAll(dd); dd.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); setHl(opts().findIndex(o => o.dataset.v === state[side])); };
+    const close = () => { dd.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+    const pick = v => { state[side] = v; driver = side === 'pay' ? bal : pay; paint(el); calc(); close(); btn.focus(); };
+    btn.addEventListener('click', e => { e.stopPropagation(); dd.classList.contains('open') ? close() : open(); });
+    menu.addEventListener('click', e => { const o = e.target.closest('.dd-opt'); if (o) pick(o.dataset.v); });
+    dd.addEventListener('keydown', e => {
+      const isOpen = dd.classList.contains('open');
+      if (e.key === 'Escape') { close(); btn.focus(); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!isOpen) open(); else setHl(hl + (e.key === 'ArrowDown' ? 1 : -1)); }
+      else if ((e.key === 'Enter' || e.key === ' ') && isOpen) { e.preventDefault(); pick(opts()[hl].dataset.v); }
+    });
+    paint(el);
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.dd')) closeAll(); });
+
+  [pay, bal].forEach(el => {
+    inp(el).addEventListener('input', () => { driver = el; calc(); });
+    inp(el).addEventListener('blur', () => { inp(el).value = fmt(num(inp(el).value), cur(el)); });
+  });
+  f.querySelector('.xswap').addEventListener('click', e => {
+    e.currentTarget.classList.toggle('flip'); closeAll();
+    pair.append(pair.firstElementChild); pair.insertBefore(pair.querySelector('.xswap'), pair.lastElementChild);
+    driver = pair.firstElementChild; inp(driver).focus();
+  });
+  calc();
+})();
+
+/* ── Card fan follows pointer ── */
+(() => {
+  const fan = document.getElementById('fan'), inner = document.getElementById('fanInner');
+  if (reduce || !matchMedia('(pointer:fine)').matches) return;
+  fan.addEventListener('pointermove', e => { const r = fan.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; inner.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 10}deg)`; });
+  fan.addEventListener('pointerleave', () => inner.style.transform = '');
+})();
+
+
+</script>
+
+
